@@ -1,3 +1,6 @@
-const sum = (a: number, b: number) => a + b;
+import { Server } from './infrastructure/server';
+import { env } from './config/env';
 
-export default sum;
+const server = new Server(env.port);
+
+server.start();
