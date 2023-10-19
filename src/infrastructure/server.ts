@@ -1,4 +1,5 @@
-import express, { Application } from 'express';
+import express, { Application, Router } from 'express';
+import { AuthRouter } from './routes/auth';
 
 export class Server {
   public app: Application = express();
@@ -6,6 +7,13 @@ export class Server {
 
   constructor(port: number) {
     this.port = port;
+    this.app.use(express.json());
+    this.app.use(express.urlencoded({ extended: true }));
+    this.app.use('/api', this.routes());
+  }
+
+  routes(): Router[] {
+    return [new AuthRouter().router];
   }
 
   async start() {
