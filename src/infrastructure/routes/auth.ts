@@ -7,6 +7,6 @@ export class AuthRouter extends BaseRouter<AuthController> {
   }
 
   routes(): void {
-    this.router.get('/auth/login', this.controller.login);
+    this.router.post('/auth/register', this.controller.register);
   }
 }
