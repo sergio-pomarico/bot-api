@@ -1,12 +1,17 @@
+import { Router } from 'express';
 import { AuthController } from '../controllers/auth';
-import { BaseRouter } from './base';
+import { AuthDataRepositoryImpl } from '../implementations/repositories/auth';
+import { AuthDataSourceImpl } from '../implementations/datasources/auth';
 
-export class AuthRouter extends BaseRouter<AuthController> {
-  constructor() {
-    super(AuthController);
-  }
+export class AuthRoutes {
+  static get routes(): Router {
+    const router = Router();
+    const dataSource = new AuthDataSourceImpl();
+    const repository = new AuthDataRepositoryImpl(dataSource);
+    const controller = new AuthController(repository);
 
-  routes(): void {
-    this.router.post('/auth/register', this.controller.register);
+    router.post('/register', controller.register);
+
+    return router;
   }
 }
