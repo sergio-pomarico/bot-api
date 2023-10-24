@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-non-null-assertion */
 import { Request, Response } from 'express';
 import { RegisterUserDTO } from '../../domain/dtos/register';
 import { AuthRepository } from '../../domain/repositories/auth';

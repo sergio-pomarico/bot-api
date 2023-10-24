@@ -1,0 +1,16 @@
+version: '3.9'
+
+services:
+  postgres:
+    image: postgres:15.1
+    container_name: database
+    logging:
+      driver: none
+    environment:
+      - POSTGRES_DB=${DB_NAME}
+      - POSTGRES_USER=${DB_USER}
+      - POSTGRES_PASSWORD=${DB_PASSWORD}
+    ports:
+      - 5432:${DB_PORT}
+    volumes:
+      - ./data:/var/lib/postgresql/data
