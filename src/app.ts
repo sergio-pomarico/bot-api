@@ -1,13 +1,14 @@
 import { Server } from './infrastructure/server';
 import { env } from './config/env';
-import { PostgreSQLDatabase } from './data/postgre-sql';
+import { postgreSQLDatabase } from './data/postgreSQL';
+import 'reflect-metadata';
 
 (() => {
   main();
 })();
 
 async function main() {
-  await PostgreSQLDatabase.connect(env.database);
+  await postgreSQLDatabase.connect();
   const server = new Server(env.port);
   await server.start();
 }

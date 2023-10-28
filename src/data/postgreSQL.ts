@@ -1,4 +1,5 @@
 import { DataSource, DataSourceOptions } from 'typeorm';
+import { env } from '../config/env';
 
 interface Options {
   host: string;
@@ -8,12 +9,18 @@ interface Options {
   name: string;
 }
 
-export abstract class PostgreSQLDatabase {
-  static async connect(options: Options): Promise<void> {
+export class PostgreSQLDatabase {
+  constructor(private readonly options: Options) {
+    this.config = this.databaseConfig(this.options);
+    this.datasource = new DataSource(this.config);
+  }
+
+  public datasource: DataSource;
+  private config: DataSourceOptions;
+
+  async connect(): Promise<void> {
     try {
-      const config = this.databaseConfig(options);
-      const posgresDataSource = new DataSource(config);
-      await posgresDataSource.initialize();
+      await this.datasource.initialize();
       console.log('📚 PostgreSQL connected');
     } catch (error: unknown) {
       if (error instanceof Error) {
@@ -21,8 +28,10 @@ export abstract class PostgreSQLDatabase {
         throw Error(error.message);
       }
     }
+    return;
   }
-  static databaseConfig(options: Options): DataSourceOptions {
+
+  databaseConfig(options: Options): DataSourceOptions {
     return {
       type: 'postgres',
       host: options.host,
@@ -32,7 +41,9 @@ export abstract class PostgreSQLDatabase {
       database: options.name,
       synchronize: true,
       logging: true,
-      //entities: [__dirname + '/../**/*.entity{.ts,.js}'],
+      entities: [__dirname + '/models/*.model{.ts,.js}'],
     };
   }
 }
+
+export const postgreSQLDatabase = new PostgreSQLDatabase(env.database);
