@@ -1,5 +1,5 @@
 import { DataSource, DataSourceOptions } from 'typeorm';
-import { env } from '../config/env';
+import { env } from '../utils/env';
 
 interface Options {
   host: string;

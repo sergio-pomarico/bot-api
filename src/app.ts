@@ -1,5 +1,5 @@
 import { Server } from './infrastructure/server';
-import { env } from './config/env';
+import { env } from './utils/env';
 import { postgreSQLDatabase } from './data/postgreSQL';
 import 'reflect-metadata';
 
