@@ -1,3 +1,4 @@
 import { RegisterUserDTO } from './register';
+import { LoginUserDTO } from './login';
 
-export { RegisterUserDTO };
+export { LoginUserDTO, RegisterUserDTO };

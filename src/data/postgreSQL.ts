@@ -21,7 +21,7 @@ export class PostgreSQLDatabase {
   async connect(): Promise<void> {
     try {
       await this.datasource.initialize();
-      console.log('📚 PostgreSQL connected');
+      console.info('📚 PostgreSQL connected');
     } catch (error: unknown) {
       if (error instanceof Error) {
         console.error('💥 error: ', error);

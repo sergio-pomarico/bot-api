@@ -1,7 +1,7 @@
 import { UserModel } from '../../../data/models/user.model';
 import { postgreSQLDatabase } from '../../../data/postgreSQL';
 import { AuthDataSource } from '@domain/datasources/auth';
-import { RegisterUserDTO } from '@domain/dtos';
+import { LoginUserDTO, RegisterUserDTO } from '@domain/dtos';
 import UserEntity from '@domain/entities/user';
 import { CustomHTTPError } from '@domain/errors/custom';
 import { EncryptAdapter } from '../../../utils';
@@ -16,8 +16,35 @@ export class AuthDataSourceImpl implements AuthDataSource {
     private comparePassword: compareFunction = EncryptAdapter.compare,
   ) {}
 
-  async login() {
-    throw Error('not implemented');
+  async login(loginDTO: LoginUserDTO): Promise<UserEntity | null> {
+    try {
+      const userRepository =
+        postgreSQLDatabase.datasource.getRepository(UserModel);
+      const findUser = await userRepository.findOneBy({
+        email: loginDTO.email,
+      });
+      if (findUser == null) throw CustomHTTPError.notFound("Can't find user");
+      const validatedPassword = this.comparePassword(
+        loginDTO.password,
+        findUser.password,
+      );
+      if (!validatedPassword)
+        throw CustomHTTPError.unauthorize('incorrect credentials');
+
+      let loginUser = new UserModel();
+      loginUser = findUser;
+      loginUser.lastLogin = new Date();
+
+      await userRepository.save(loginUser);
+      const user = UserMapper.userEntityFromObject(findUser);
+
+      return user;
+    } catch (error: unknown) {
+      if (error instanceof Error) {
+        throw error;
+      }
+      return null;
+    }
   }
 
   async register(registerDTO: RegisterUserDTO): Promise<UserEntity | null> {

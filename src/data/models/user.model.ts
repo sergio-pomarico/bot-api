@@ -14,7 +14,7 @@ export class UserModel {
   @Column({ unique: true })
   email: string;
 
-  @Column({ select: false })
+  @Column()
   password: string;
 
   @Column({ type: 'bigint', unique: true })
