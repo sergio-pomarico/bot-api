@@ -20,10 +20,10 @@ export class AuthController {
   };
 
   login = async (req: Request, res: Response) => {
-    const [error, loginUserDTO] = LoginUserDTO.create(req.body);
+    const [error, loginDTO] = LoginUserDTO.create(req.body);
     if (error) return res.status(400).json({ error });
     this.loginUser
-      .run(loginUserDTO!)
+      .run(loginDTO!)
       .then(async (response) => {
         const { token, user: userId } = response;
         return res.status(200).json({ userId, token });
@@ -32,10 +32,10 @@ export class AuthController {
   };
 
   register = async (req: Request, res: Response) => {
-    const [error, registerUserDTO] = RegisterUserDTO.create(req.body);
+    const [error, registerDTO] = RegisterUserDTO.create(req.body);
     if (error) return res.status(400).json({ error });
     this.createUser
-      .run(registerUserDTO!)
+      .run(registerDTO!)
       .then(async (response) => {
         const { token, user: userId } = response;
         return res.status(200).json({ userId, token });

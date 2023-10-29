@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-non-null-assertion */
 import jwt from 'jsonwebtoken';
 
 export class JWTAdapter {

@@ -1,7 +1,7 @@
 import { LoginUserDTO } from '@domain/dtos';
 import { CustomHTTPError } from '@domain/errors/custom';
 import { AuthRepository } from '@domain/repositories/auth';
-import { JWTAdapter } from 'utils';
+import { JWTAdapter } from '@shared/utils';
 
 interface LoginUserResponse {
   token: string;

@@ -10,15 +10,12 @@ const loginUserDTOValidator = z.object({
 export default class LoginUserDTO {
   private constructor(public email: string, public password: string) {}
 
-  static create(data: { [key in keyof UserEntity]: unknown }): [
+  static create(data: { [key in keyof UserEntity]: string }): [
     Error?,
     LoginUserDTO?,
   ] {
     const result = loginUserDTOValidator.safeParse(data);
     if (!result.success) return [result.error, undefined];
-    return [
-      undefined,
-      new LoginUserDTO(data.email as string, data.password as string),
-    ];
+    return [undefined, new LoginUserDTO(data.email, data.password)];
   }
 }

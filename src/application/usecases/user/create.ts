@@ -1,6 +1,6 @@
 import { RegisterUserDTO } from '@domain/dtos';
 import { AuthRepository } from '@domain/repositories/auth';
-import { JWTAdapter } from '../../../utils';
+import { JWTAdapter } from '@shared/utils';
 import { CustomHTTPError } from '@domain/errors/custom';
 
 interface CreateUserResponse {
@@ -11,7 +11,7 @@ interface CreateUserResponse {
 type signToken = (payload: object, duration?: string) => Promise<string | null>;
 
 export interface CreateUserUseCase {
-  run: (registerUserDTO: RegisterUserDTO) => Promise<CreateUserResponse>;
+  run: (registerDTO: RegisterUserDTO) => Promise<CreateUserResponse>;
 }
 
 export class CreateUser implements CreateUserUseCase {
@@ -19,10 +19,8 @@ export class CreateUser implements CreateUserUseCase {
     private readonly repository: AuthRepository,
     private readonly signToken: signToken = JWTAdapter.generateToken,
   ) {}
-  run = async (
-    registerUserDTO: RegisterUserDTO,
-  ): Promise<CreateUserResponse> => {
-    const user = await this.repository.register(registerUserDTO!);
+  run = async (registerDTO: RegisterUserDTO): Promise<CreateUserResponse> => {
+    const user = await this.repository.register(registerDTO!);
     const token = await this.signToken({ id: user?.id });
     if (!token)
       throw CustomHTTPError.internalServer('Token could not be generated');

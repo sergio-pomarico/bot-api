@@ -4,7 +4,7 @@ import { AuthDataSource } from '@domain/datasources';
 import { LoginUserDTO, RegisterUserDTO } from '@domain/dtos';
 import { UserEntity } from '@domain/entities';
 import { CustomHTTPError } from '@domain/errors/custom';
-import { EncryptAdapter } from '../../../utils';
+import { EncryptAdapter } from '@shared/utils';
 
 type hashFunction = (password: string) => string;
 type compareFunction = (password: string, hash: string) => boolean;
@@ -19,20 +19,19 @@ export class AuthDataSourceImpl implements AuthDataSource {
     try {
       const databaseRepository =
         postgreSQLDatabase.datasource.getRepository(UserModel);
-      const findUser = await databaseRepository.findOneBy({
+      const userFound = await databaseRepository.findOneBy({
         email: loginDTO.email,
       });
-      if (findUser == null) throw CustomHTTPError.notFound("Can't find user");
+      if (userFound == null) throw CustomHTTPError.notFound("Can't find user");
       const validatedPassword = this.comparePassword(
         loginDTO.password,
-        findUser.password,
+        userFound.password,
       );
       if (!validatedPassword)
         throw CustomHTTPError.unauthorize('incorrect credentials');
 
       let user = new UserModel();
-      user = findUser;
-      user.lastLogin = new Date();
+      user = { ...userFound, lastLogin: new Date() };
 
       await databaseRepository.save(user);
 
@@ -50,11 +49,11 @@ export class AuthDataSourceImpl implements AuthDataSource {
       const databaseRepository =
         postgreSQLDatabase.datasource.getRepository(UserModel);
 
-      const findUser = await databaseRepository.findOneBy({
+      const userFound = await databaseRepository.findOneBy({
         email: registerDTO.email,
       });
 
-      if (findUser != null)
+      if (userFound != null)
         throw CustomHTTPError.badRequest('Cannot register user');
 
       const newUser = new UserModel();
