@@ -1,4 +1,4 @@
-import { RegisterUserDTO } from '../dtos/register';
+import { RegisterUserDTO } from '../dtos';
 import UserEntity from '../entities/user';
 
 export interface AuthRepository {

@@ -1,7 +1,7 @@
 import { Request, Response } from 'express';
-import { RegisterUserDTO } from '../../domain/dtos/register';
-import { AuthRepository } from '../../domain/repositories/auth';
-import { CustomHTTPError } from '../../domain/errors/custom';
+import { RegisterUserDTO } from '@domain/dtos';
+import { AuthRepository } from '@domain/repositories/auth';
+import { CustomHTTPError } from '@domain/errors/custom';
 import { JWTAdapter } from '../../utils/jwt';
 
 export class AuthController {

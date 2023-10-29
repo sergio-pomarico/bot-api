@@ -1,9 +1,9 @@
 import { UserModel } from '../../../data/models/user.model';
 import { postgreSQLDatabase } from '../../../data/postgreSQL';
-import { AuthDataSource } from '../../../domain/datasources/auth';
-import { RegisterUserDTO } from '../../../domain/dtos/register';
-import UserEntity from '../../../domain/entities/user';
-import { CustomHTTPError } from '../../../domain/errors/custom';
+import { AuthDataSource } from '@domain/datasources/auth';
+import { RegisterUserDTO } from '@domain/dtos';
+import UserEntity from '@domain/entities/user';
+import { CustomHTTPError } from '@domain/errors/custom';
 import { EncryptAdapter } from '../../../utils/encrypt';
 import { UserMapper } from '../../mappers/user.mapper';
 
