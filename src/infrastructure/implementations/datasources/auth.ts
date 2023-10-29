@@ -4,7 +4,7 @@ import { AuthDataSource } from '@domain/datasources/auth';
 import { RegisterUserDTO } from '@domain/dtos';
 import UserEntity from '@domain/entities/user';
 import { CustomHTTPError } from '@domain/errors/custom';
-import { EncryptAdapter } from '../../../utils/encrypt';
+import { EncryptAdapter } from '../../../utils';
 import { UserMapper } from '../../mappers/user.mapper';
 
 type hashFunction = (password: string) => string;

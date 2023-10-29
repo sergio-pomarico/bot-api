@@ -2,7 +2,7 @@ import { Request, Response } from 'express';
 import { RegisterUserDTO } from '@domain/dtos';
 import { AuthRepository } from '@domain/repositories/auth';
 import { CustomHTTPError } from '@domain/errors/custom';
-import { JWTAdapter } from '../../utils/jwt';
+import { JWTAdapter } from '../../utils';
 
 export class AuthController {
   constructor(private readonly repository: AuthRepository) {}
