@@ -1,11 +1,10 @@
 import { UserModel } from '../../data/models/user.model';
 import { postgreSQLDatabase } from '../../data/postgreSQL';
-import { AuthDataSource } from '@domain/datasources/auth';
+import { AuthDataSource } from '@domain/datasources';
 import { LoginUserDTO, RegisterUserDTO } from '@domain/dtos';
-import UserEntity from '@domain/entities/user';
+import { UserEntity } from '@domain/entities';
 import { CustomHTTPError } from '@domain/errors/custom';
 import { EncryptAdapter } from '../../../utils';
-import { UserMapper } from '../../mappers/user.mapper';
 
 type hashFunction = (password: string) => string;
 type compareFunction = (password: string, hash: string) => boolean;
@@ -18,9 +17,9 @@ export class AuthDataSourceImpl implements AuthDataSource {
 
   async login(loginDTO: LoginUserDTO): Promise<UserEntity | null> {
     try {
-      const userRepository =
+      const databaseRepository =
         postgreSQLDatabase.datasource.getRepository(UserModel);
-      const findUser = await userRepository.findOneBy({
+      const findUser = await databaseRepository.findOneBy({
         email: loginDTO.email,
       });
       if (findUser == null) throw CustomHTTPError.notFound("Can't find user");
@@ -31,12 +30,11 @@ export class AuthDataSourceImpl implements AuthDataSource {
       if (!validatedPassword)
         throw CustomHTTPError.unauthorize('incorrect credentials');
 
-      let loginUser = new UserModel();
-      loginUser = findUser;
-      loginUser.lastLogin = new Date();
+      let user = new UserModel();
+      user = findUser;
+      user.lastLogin = new Date();
 
-      await userRepository.save(loginUser);
-      const user = UserMapper.userEntityFromObject(findUser);
+      await databaseRepository.save(user);
 
       return user;
     } catch (error: unknown) {
@@ -49,10 +47,10 @@ export class AuthDataSourceImpl implements AuthDataSource {
 
   async register(registerDTO: RegisterUserDTO): Promise<UserEntity | null> {
     try {
-      const userRepository =
+      const databaseRepository =
         postgreSQLDatabase.datasource.getRepository(UserModel);
 
-      const findUser = await userRepository.findOneBy({
+      const findUser = await databaseRepository.findOneBy({
         email: registerDTO.email,
       });
 
@@ -65,8 +63,7 @@ export class AuthDataSourceImpl implements AuthDataSource {
       newUser.phone = parseInt(registerDTO.phone);
       newUser.active = false;
 
-      const savedUser = await userRepository.save(newUser);
-      const user = UserMapper.userEntityFromObject(savedUser);
+      const user = await databaseRepository.save(newUser);
 
       return user;
     } catch (error: unknown) {

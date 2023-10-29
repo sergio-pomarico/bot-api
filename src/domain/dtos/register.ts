@@ -1,6 +1,6 @@
 import { z } from 'zod';
 
-import UserEntity from '../entities/user';
+import { UserEntity } from '../entities';
 
 const registerUserDTOValidator = z.object({
   email: z.string().email(),
@@ -8,7 +8,7 @@ const registerUserDTOValidator = z.object({
   phone: z.string().min(10),
 });
 
-export class RegisterUserDTO {
+export default class RegisterUserDTO {
   private constructor(
     public email: string,
     public password: string,

@@ -1,7 +1,7 @@
 import { LoginUserDTO, RegisterUserDTO } from '../dtos';
-import UserEntity from '../entities/user';
+import { UserEntity } from '../entities';
 
-export interface AuthDataSource {
+export default interface AuthDataSource {
   login: (loginUserDTO: LoginUserDTO) => Promise<UserEntity | null>;
   register: (registerDTO: RegisterUserDTO) => Promise<UserEntity | null>;
 }

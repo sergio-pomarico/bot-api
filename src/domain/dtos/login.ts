@@ -1,13 +1,13 @@
 import { z } from 'zod';
 
-import UserEntity from '../entities/user';
+import { UserEntity } from '../entities';
 
 const loginUserDTOValidator = z.object({
   email: z.string().email(),
   password: z.string().min(8),
 });
 
-export class LoginUserDTO {
+export default class LoginUserDTO {
   private constructor(public email: string, public password: string) {}
 
   static create(data: { [key in keyof UserEntity]: unknown }): [

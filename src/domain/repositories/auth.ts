@@ -1,5 +1,5 @@
 import { LoginUserDTO, RegisterUserDTO } from '../dtos';
-import UserEntity from '../entities/user';
+import { UserEntity } from '../entities';
 
 export interface AuthRepository {
   login: (loginDTO: LoginUserDTO) => Promise<UserEntity | null>;
