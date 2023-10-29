@@ -13,3 +13,5 @@ export const env = {
     username: get('DB_USER').required().asString(),
   },
 };
+
+export type config = typeof env;

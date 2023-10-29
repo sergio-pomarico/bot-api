@@ -19,6 +19,6 @@
   "ignorePatterns": ["dist/**/*.js"],
   "plugins": ["@typescript-eslint"],
   "rules": {
-    "@typescript-eslint/no-non-null-assertion": "none"
+    "@typescript-eslint/no-non-null-assertion": 0
   }
 }

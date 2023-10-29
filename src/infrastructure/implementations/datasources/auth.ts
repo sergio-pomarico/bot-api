@@ -25,7 +25,9 @@ export class AuthDataSourceImpl implements AuthDataSource {
       const userRepository =
         postgreSQLDatabase.datasource.getRepository(UserModel);
 
-      const findUser = userRepository.findOneBy({ email: registerDTO.email });
+      const findUser = await userRepository.findOneBy({
+        email: registerDTO.email,
+      });
 
       if (findUser != null)
         throw CustomHTTPError.badRequest('Cannot register user');

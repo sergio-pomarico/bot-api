@@ -1,8 +1,8 @@
-/* eslint-disable @typescript-eslint/no-non-null-assertion */
 import { Request, Response } from 'express';
 import { RegisterUserDTO } from '../../domain/dtos/register';
 import { AuthRepository } from '../../domain/repositories/auth';
 import { CustomHTTPError } from '../../domain/errors/custom';
+import { JWTAdapter } from '../../utils/jwt';
 
 export class AuthController {
   constructor(private readonly repository: AuthRepository) {}
@@ -12,12 +12,15 @@ export class AuthController {
     }
     return res.status(500).json({ error: 'Internal server error' });
   };
-  register = (req: Request, res: Response) => {
+  register = async (req: Request, res: Response) => {
     const [error, registerUserDTO] = RegisterUserDTO.create(req.body);
     if (error) return res.status(400).json({ error });
     this.repository
       .register(registerUserDTO!)
-      .then((user) => res.status(200).json(user))
+      .then(async (user) => {
+        const token = await JWTAdapter.generateToken({ id: user?.id });
+        return res.status(200).json({ user, token });
+      })
       .catch((error) => this.handlerError(error, res));
   };
 }
