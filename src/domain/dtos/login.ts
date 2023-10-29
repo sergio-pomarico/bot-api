@@ -1,4 +1,4 @@
-import { ZodError, z } from 'zod';
+import { z } from 'zod';
 
 import UserEntity from '../entities/user';
 
@@ -11,7 +11,7 @@ export class LoginUserDTO {
   private constructor(public email: string, public password: string) {}
 
   static create(data: { [key in keyof UserEntity]: unknown }): [
-    ZodError?,
+    Error?,
     LoginUserDTO?,
   ] {
     const result = loginUserDTOValidator.safeParse(data);

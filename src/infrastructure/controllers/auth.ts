@@ -1,8 +1,10 @@
 import { Request, Response } from 'express';
 import { LoginUserDTO, RegisterUserDTO } from '@domain/dtos';
 import { CustomHTTPError } from '@domain/errors/custom';
-import { CreateUserUseCase } from '@application/usecases/user/create';
-import { LoginUserUseCase } from '@application/usecases/user/login';
+import {
+  CreateUserUseCase,
+  LoginUserUseCase,
+} from '@application/usecases/user';
 
 export class AuthController {
   constructor(

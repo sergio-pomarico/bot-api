@@ -1,4 +1,4 @@
-import UserEntity from '../../domain/entities/user';
+import UserEntity from '@domain/entities/user';
 
 export class UserMapper {
   static userEntityFromObject(object: {
