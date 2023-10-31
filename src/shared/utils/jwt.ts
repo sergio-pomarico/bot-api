@@ -12,4 +12,13 @@ export class JWTAdapter {
       });
     });
   }
+
+  static verifyToken<T>(token: string): Promise<T | null> {
+    return new Promise((resolve) => {
+      jwt.verify(token, 'SEED', (err, decode) => {
+        if (err) return resolve(null);
+        return resolve(decode as T);
+      });
+    });
+  }
 }
