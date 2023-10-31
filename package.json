@@ -1,8 +1,8 @@
 {
-  "name": "store-api",
-  "version": "1.0.0",
+  "name": "bot-api",
+  "version": "0.0.1",
   "description": "",
-  "main": "index.js",
+  "main": "dist/app.js",
   "scripts": {
     "prepare": "husky install",
     "prebuild": "rimraf ./dist",
@@ -17,15 +17,15 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/sergio-pomarico/ts-node-projectp-setup.git"
+    "url": "git+https://github.com/sergio-pomarico/bot-api.git"
   },
   "keywords": [],
   "author": "Sergio Pomárico <sergiodavid21@gmail.com>",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/sergio-pomarico/ts-node-projectp-setup/issues"
+    "url": "https://github.com/sergio-pomarico/bot-api/issues"
   },
-  "homepage": "https://github.com/sergio-pomarico/ts-node-projectp-setup#readme",
+  "homepage": "https://github.com/sergio-pomarico/bot-api#readme",
   "dependencies": {
     "bcryptjs": "^2.4.3",
     "dotenv": "^16.3.1",
