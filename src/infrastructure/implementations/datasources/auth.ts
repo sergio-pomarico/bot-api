@@ -22,13 +22,14 @@ export class AuthDataSourceImpl implements AuthDataSource {
       const userFound = await databaseRepository.findOneBy({
         email: loginDTO.email,
       });
-      if (userFound == null) throw CustomHTTPError.notFound("Can't find user");
+      if (userFound == null)
+        throw CustomHTTPError.unauthorize('Wrong username or password');
       const validatedPassword = this.comparePassword(
         loginDTO.password,
         userFound.password,
       );
       if (!validatedPassword)
-        throw CustomHTTPError.unauthorize('incorrect credentials');
+        throw CustomHTTPError.unauthorize('Wrong username or password');
 
       let user = new UserModel();
       user = { ...userFound, lastLogin: new Date() };
@@ -69,7 +70,7 @@ export class AuthDataSourceImpl implements AuthDataSource {
       if (error instanceof Error) {
         throw error;
       }
+      return null;
     }
-    return null;
   }
 }

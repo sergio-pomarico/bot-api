@@ -14,7 +14,7 @@ export class AuthController {
 
   handlerError = (error: unknown, res: Response) => {
     if (error instanceof CustomHTTPError) {
-      return res.status(error.statusCode).json({ error: error.message });
+      return res.status(error.httpCode).json({ error: error.message });
     }
     return res.status(500).json({ error: 'Internal server error' });
   };
@@ -25,8 +25,7 @@ export class AuthController {
     this.loginUser
       .run(loginDTO!)
       .then(async (response) => {
-        const { token, user: userId } = response;
-        return res.status(200).json({ userId, token });
+        return res.status(200).json({ ...response });
       })
       .catch((error) => this.handlerError(error, res));
   };
@@ -37,7 +36,7 @@ export class AuthController {
     this.createUser
       .run(registerDTO!)
       .then(async (response) => {
-        const { token, user: userId } = response;
+        const { token, userId } = response;
         return res.status(200).json({ userId, token });
       })
       .catch((error) => this.handlerError(error, res));

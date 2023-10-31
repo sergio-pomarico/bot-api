@@ -5,7 +5,8 @@ import { JWTAdapter } from '@shared/utils';
 
 interface LoginUserResponse {
   token: string;
-  user: { id?: string };
+  userId?: string;
+  lastLogin?: string;
 }
 
 type signToken = (payload: object, duration?: string) => Promise<string | null>;
@@ -27,7 +28,8 @@ export class LoginUser {
       throw CustomHTTPError.internalServer('Token could not be generated');
     return {
       token: token,
-      user: { id: user?.id },
+      userId: user?.id,
+      lastLogin: user?.lastLogin?.toISOString(),
     };
   }
 }

@@ -5,7 +5,7 @@ import { CustomHTTPError } from '@domain/errors/custom';
 
 interface CreateUserResponse {
   token: string;
-  user: { id?: string };
+  userId?: string;
 }
 
 type signToken = (payload: object, duration?: string) => Promise<string | null>;
@@ -26,7 +26,7 @@ export class CreateUser implements CreateUserUseCase {
       throw CustomHTTPError.internalServer('Token could not be generated');
     return {
       token: token,
-      user: { id: user?.id },
+      userId: user?.id,
     };
   };
 }
