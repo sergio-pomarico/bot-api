@@ -1,4 +1,4 @@
-import { EncryptAdapter } from '../encrypt';
+import { EncryptAdapter } from '../';
 
 describe('test EncryptAdapter', () => {
   test('EncryptAdapter should be encrypt a string', () => {

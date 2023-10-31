@@ -1,4 +1,4 @@
-import { JWTAdapter } from '../jwt';
+import { JWTAdapter } from '../';
 
 describe('test JWTAdapter', () => {
   test('JWTAdapter should be generate token', async () => {
