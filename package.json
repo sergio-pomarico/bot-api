@@ -13,7 +13,7 @@
     "start": "npm run build && node ./dist/app.js",
     "test": "jest --passWithNoTests",
     "test:watch": "npm run test -- --watch",
-    "test:push": "npm run test -- --coverage"
+    "test:coverage": "npm run test -- --coverage"
   },
   "repository": {
     "type": "git",
