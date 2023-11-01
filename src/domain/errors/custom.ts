@@ -26,19 +26,3 @@ export class CustomHTTPError extends Error {
     return new CustomHTTPError(500, message);
   }
 }
-
-// {
-//   "error": {
-//       "code": "17",
-//       "title": "Wrong username or password",
-//       "microservice": "user",
-//       "subdomain": "Auth",
-//       "description": "Wrong username or password, 1/4",
-//       "httpCode": 401,
-//       "type": "PAYLOAD_CONTENT_ERROR",
-//       "id": "user-Auth-17"
-//   }
-// }
-
-// "clientId": "2035cf1d-7c29-5dbf-b38a-933bb93a7979",
-// "lastLogin": "2023-10-30T14:56:39.578Z",
