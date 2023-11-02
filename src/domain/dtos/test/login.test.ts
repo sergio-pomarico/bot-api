@@ -8,7 +8,7 @@ describe('test LoginUserDTO', () => {
     };
     const [error, loginDTO] = LoginUserDTO.create(user);
     expect(error).toBeUndefined();
-    expect(loginDTO).toBeDefined();
+    expect(loginDTO).toBeInstanceOf(LoginUserDTO);
   });
 
   test('LoginUserDTO should be return a error with invalid login payload', () => {
