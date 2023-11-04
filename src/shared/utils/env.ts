@@ -12,6 +12,7 @@ export const env = {
     password: get('DB_PASSWORD').required().asString(),
     username: get('DB_USER').required().asString(),
   },
+  whatsapp: get('WS_TOKEN').required().asString(),
 };
 
 export type config = typeof env;

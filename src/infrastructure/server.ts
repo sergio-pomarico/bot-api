@@ -1,5 +1,6 @@
 import express, { Application } from 'express';
-import { AppRoutes } from './routes';
+
+import { AppRoutes } from './routes/main';
 
 export class Server {
   public app: Application = express();
