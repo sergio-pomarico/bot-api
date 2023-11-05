@@ -1,5 +1,5 @@
 import { WhatsAppController } from '@infrastructure/controllers/whatsapp';
-import { Request, Response, Router } from 'express';
+import { Router } from 'express';
 
 export class WebHookRoutes {
   constructor(public readonly router = Router()) {
@@ -11,9 +11,6 @@ export class WebHookRoutes {
 
   routes(): void {
     this.router.get('/webhook', this.controller.challenge);
-    this.router.post('/webhook', (req: Request, res: Response) => {
-      console.log(JSON.stringify(req.body));
-      res.sendStatus(200);
-    });
+    this.router.post('/webhook', this.controller.webhook);
   }
 }
