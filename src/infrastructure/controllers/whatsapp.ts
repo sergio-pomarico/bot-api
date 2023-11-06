@@ -9,7 +9,7 @@ export class WhatsAppController {
     const mode = req.query['hub.mode'];
     const token = req.query['hub.verify_token'];
     const challenge = req.query['hub.challenge'];
-    if (mode === MODE && token === env.whatsapp) {
+    if (mode === MODE && token === env.whatsapp.challenge) {
       return res.status(200).send(challenge);
     } else {
       return res.sendStatus(403);
