@@ -1,40 +1,40 @@
-export interface WhatsAppMessageResponse {
+export interface WhatsAppUserResponseMessage {
   object: string;
   entry: Entry[];
 }
 
-export interface Entry {
+interface Entry {
   id: string;
   changes: Change[];
 }
 
-export interface Change {
+interface Change {
   value: Value;
   field: string;
 }
 
-export interface Value {
+interface Value {
   messaging_product: string;
   metadata: MessageMetadata;
   contacts: Contact[];
-  messages: Message[];
+  messages: MessageReceived[];
 }
 
-export interface MessageMetadata {
+interface MessageMetadata {
   display_phone_number: string;
   phone_number_id: string;
 }
 
-export interface Contact {
+interface Contact {
   profile: Profile;
   wa_id: string;
 }
 
-export interface Profile {
+interface Profile {
   name: string;
 }
 
-export interface Message {
+interface MessageReceived {
   from: string;
   id: string;
   timestamp: string;
@@ -42,6 +42,6 @@ export interface Message {
   type: string;
 }
 
-export interface Text {
+interface Text {
   body: string;
 }

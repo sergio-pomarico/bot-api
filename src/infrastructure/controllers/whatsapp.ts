@@ -1,4 +1,8 @@
-import { WhatsAppMessageResponse } from '@domain/entities/messages';
+import {
+  WhatsAppUserResponseMessage,
+  WhatssAppTextMessagePayload,
+} from '@domain/entities/whatsapp';
+import services from '@infrastructure/services/api';
 import { env } from '@shared/utils';
 import { Request, Response } from 'express';
 
@@ -16,9 +20,26 @@ export class WhatsAppController {
     }
   };
   webhook = async (req: Request, res: Response) => {
-    const whatsAppMessage: WhatsAppMessageResponse = req.body;
-    const { contacts, messages } = whatsAppMessage.entry[0].changes[0].value;
-    console.log(contacts[0].profile, messages[0]);
-    return res.sendStatus(200);
+    try {
+      const whatsAppMessage: WhatsAppUserResponseMessage = req.body;
+      const { contacts, messages } = whatsAppMessage.entry[0].changes[0].value;
+      const number = messages[0].from ?? '';
+      const name = contacts[0].profile.name ?? '';
+      const message: WhatssAppTextMessagePayload = {
+        messaging_product: 'whatsapp',
+        recipient_type: 'individual',
+        to: number,
+        type: 'text',
+        text: {
+          preview_url: false,
+          body: `Hola ${name} en que te podemos ayudar.`,
+        },
+      };
+      await services.send(message);
+      return res.sendStatus(200);
+    } catch (error) {
+      console.log(error);
+      return res.sendStatus(401);
+    }
   };
 }

@@ -15,6 +15,8 @@ export const env = {
   whatsapp: {
     challenge: get('WS_CHALLENGE').required().asString(),
     secret: get('WS_APP_SECRET').required().asString(),
+    apiToken: get('WS_API_TOKEN').required().asString(),
+    apiUrl: get('WS_API_URL').required().asString(),
   },
 };
 
