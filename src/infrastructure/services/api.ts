@@ -2,10 +2,7 @@ import { AxiosHeaders, AxiosRequestConfig } from 'axios';
 import Http from './axios';
 import { buidConfig } from './config';
 import { env } from '@shared/utils';
-import {
-  WhatsAppPayloadResponse,
-  WhatssAppTextMessagePayload,
-} from '@domain/entities/whatsapp';
+import { WhatsAppMessage, WhatsAppMessageResult } from '@domain/entities';
 
 const whatsappApiHeaders = AxiosHeaders.concat({
   Authorization: `Bearer ${env.whatsapp.apiToken}`,
@@ -18,13 +15,11 @@ class Service extends Http {
     super(config);
   }
 
-  send = async (
-    payload: WhatssAppTextMessagePayload,
-  ): Promise<WhatsAppPayloadResponse> => {
-    const result = await this.post<
-      WhatsAppPayloadResponse,
-      WhatssAppTextMessagePayload
-    >('/messages', payload);
+  send = async (payload: WhatsAppMessage): Promise<WhatsAppMessageResult> => {
+    const result = await this.post<WhatsAppMessageResult, WhatsAppMessage>(
+      '/messages',
+      payload,
+    );
     return result.data;
   };
 }

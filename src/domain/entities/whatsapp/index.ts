@@ -1,11 +1,13 @@
-import { WhatsAppUserResponseMessage } from './response';
+import { WhatsAppResponse } from './response';
 import {
-  WhatsAppPayloadResponse,
-  WhatssAppTextMessagePayload,
+  WhatsAppMessage,
+  WhatsAppMessageResult,
+  WhatsAppTextMessage,
 } from './payload';
 
 export {
-  WhatsAppUserResponseMessage,
-  WhatsAppPayloadResponse,
-  WhatssAppTextMessagePayload,
+  WhatsAppResponse,
+  WhatsAppMessage,
+  WhatsAppTextMessage,
+  WhatsAppMessageResult,
 };

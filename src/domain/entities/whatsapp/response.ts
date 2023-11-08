@@ -1,4 +1,4 @@
-export interface WhatsAppUserResponseMessage {
+export interface WhatsAppResponse {
   object: string;
   entry: Entry[];
 }
