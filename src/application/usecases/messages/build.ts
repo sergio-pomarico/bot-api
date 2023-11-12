@@ -33,8 +33,38 @@ interface Section {
   rows: Row[];
 }
 
-export class MessageBuilder {
-  static buidInteractiveListMessage = (
+export interface MessageBuilderHelper {
+  buildTextMessage: (
+    to: string,
+    text: string,
+    preview_url: boolean,
+  ) => WhatsAppTextMessage;
+  buildLocationMessage: (
+    to: string,
+    latitude: number,
+    longitude: number,
+    name: string,
+    address: string,
+  ) => LocationMessage;
+  buildReplyButtonsMessage: (
+    to: string,
+    bodyText: string,
+    buttons: Button[],
+    header?: string,
+    footer?: string,
+  ) => InteractiveMessage;
+  buidInteractiveListMessage: (
+    to: string,
+    buttonName: string,
+    bodyText: string,
+    sections: Section[],
+    header?: string,
+    footer?: string,
+  ) => InteractiveMessage;
+}
+
+export class MessageBuilder implements MessageBuilderHelper {
+  buidInteractiveListMessage = (
     to: string,
     buttonName: string,
     bodyText: string,
@@ -63,7 +93,7 @@ export class MessageBuilder {
     },
   });
 
-  static buildTextMessage = (
+  buildTextMessage = (
     to: string,
     text: string,
     preview_url: boolean,
@@ -94,7 +124,7 @@ export class MessageBuilder {
     },
   });
 
-  static buildReplyButtonsMessage = (
+  buildReplyButtonsMessage = (
     to: string,
     bodyText: string,
     buttons: Button[],
