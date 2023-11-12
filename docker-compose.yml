@@ -14,3 +14,12 @@ services:
       - 5432:${DB_PORT}
     volumes:
       - ./data:/var/lib/postgresql/data
+  redis:
+    image: redis:7.2.3
+    container_name: cache
+    restart: always
+    ports:
+      - 6379:6379
+    command: redis-server --loglevel warning --requirepass ${REDIS_PASS}
+    volumes:
+      - ./redis:/data
