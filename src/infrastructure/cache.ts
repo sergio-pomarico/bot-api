@@ -1,7 +1,7 @@
 import { env } from '@shared/utils';
 import { createClient, RedisClientType } from 'redis';
 
-type CacheValue = Record<string, unknown> | string | boolean | number;
+type CacheValue = object | string | boolean | number;
 
 export class CacheManager {
   constructor() {

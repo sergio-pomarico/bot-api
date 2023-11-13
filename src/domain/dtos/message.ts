@@ -14,12 +14,16 @@ export default class WhatsAppMessageDTO {
       const whatsAppMessage: WhatsAppResponse = req.body;
       const { entry } = whatsAppMessage;
       if (entry && entry.length > 0) {
-        const {
-          value: {
-            contacts: [{ profile, wa_id }],
-          },
-        } = entry[0].changes[0];
-        return { profile: profile.name, wa_id };
+        const { changes } = entry[0];
+        if (changes && changes.length > 0) {
+          const {
+            value: { contacts },
+          } = changes[0];
+          if (contacts && contacts.length > 0) {
+            const { wa_id, profile } = contacts[0];
+            return { profile: profile.name, wa_id };
+          }
+        }
       }
       return null;
     } catch (error) {
