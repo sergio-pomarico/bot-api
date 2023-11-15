@@ -21,11 +21,11 @@ export class CacheManager {
     await this.client.connect();
   };
 
-  set = async (key: string, value: CacheValue, exp?: number): Promise<void> => {
+  set = async (key: string, value: CacheValue, exp = 300): Promise<void> => {
     const valueToStore =
       typeof value === 'string' ? value : JSON.stringify(value);
     await this.connect();
-    await this.client.set(key, valueToStore, { PX: exp });
+    await this.client.set(key, valueToStore, { EX: exp });
   };
 
   get = async (key: string): Promise<CacheValue | null> => {

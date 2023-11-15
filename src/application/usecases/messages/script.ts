@@ -8,17 +8,24 @@ export class ConversationScript {
   question = (step: number, destination: string): WhatsAppMessage => {
     let message: WhatsAppMessage;
     switch (step) {
+      case 0:
+        message = this.builder.buildTextMessage(
+          destination,
+          '¿Cuál es tu nombre?',
+          false,
+        );
+        break;
       case 1:
         message = this.builder.buildTextMessage(
           destination,
-          'Segundo mensaje',
+          '¿Cuál es tu dirección?',
           false,
         );
         break;
       case 2:
         message = this.builder.buildTextMessage(
           destination,
-          'Tercer mensaje',
+          'Por favor ingresa tu número de documento',
           false,
         );
         break;

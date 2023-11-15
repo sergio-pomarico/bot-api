@@ -5,7 +5,10 @@ import { z } from 'zod';
 const messageDTOValidator = z.string().length(12).startsWith('57');
 
 export default class WhatsAppMessageDTO {
-  private constructor(public destination: string) {}
+  private constructor(
+    public destination: string,
+    public response: WhatsAppResponse,
+  ) {}
 
   static getUserData = (
     req: Request,
@@ -36,6 +39,6 @@ export default class WhatsAppMessageDTO {
     const userInfo = this.getUserData(req);
     const result = messageDTOValidator.safeParse(userInfo?.wa_id);
     if (!result.success) return [result.error, undefined];
-    return [undefined, new WhatsAppMessageDTO(userInfo!.wa_id)];
+    return [undefined, new WhatsAppMessageDTO(userInfo!.wa_id, req.body)];
   }
 }
