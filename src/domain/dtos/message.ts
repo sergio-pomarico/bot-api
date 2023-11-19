@@ -10,25 +10,15 @@ export default class WhatsAppMessageDTO {
     public response: WhatsAppResponse,
   ) {}
 
-  static getUserData = (
-    req: Request,
-  ): { profile: string; wa_id: string } | null => {
+  static info = (req: Request): { profile: string; wa_id: string } | null => {
     try {
       const whatsAppMessage: WhatsAppResponse = req.body;
-      const { entry } = whatsAppMessage;
-      if (entry && entry.length > 0) {
-        const { changes } = entry[0];
-        if (changes && changes.length > 0) {
-          const {
-            value: { contacts },
-          } = changes[0];
-          if (contacts && contacts.length > 0) {
-            const { wa_id, profile } = contacts[0];
-            return { profile: profile.name, wa_id };
-          }
-        }
-      }
-      return null;
+      const number =
+        whatsAppMessage.entry[0].changes[0].value.contacts?.[0].wa_id;
+      const name =
+        req.body.entry[0].changes[0].value.contacts?.[0]?.profile?.name ??
+        undefined;
+      return { profile: name, wa_id: number };
     } catch (error) {
       console.error(error);
       return null;
@@ -36,9 +26,9 @@ export default class WhatsAppMessageDTO {
   };
 
   static create(req: Request): [Error?, WhatsAppMessageDTO?] {
-    const userInfo = this.getUserData(req);
-    const result = messageDTOValidator.safeParse(userInfo?.wa_id);
+    const info = this.info(req);
+    const result = messageDTOValidator.safeParse(info?.wa_id);
     if (!result.success) return [result.error, undefined];
-    return [undefined, new WhatsAppMessageDTO(userInfo!.wa_id, req.body)];
+    return [undefined, new WhatsAppMessageDTO(info!.wa_id, req.body)];
   }
 }

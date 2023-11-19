@@ -33,7 +33,8 @@ export class WhatsAppController {
       .then(() => {
         return res.sendStatus(200);
       })
-      .catch(() => {
+      .catch((error) => {
+        console.error(error);
         return res.sendStatus(401);
       });
   };

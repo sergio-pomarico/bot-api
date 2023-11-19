@@ -34,14 +34,30 @@ interface Profile {
   name: string;
 }
 
+export type MessageType = 'text' | 'interactive';
+
 interface MessageReceived {
   from: string;
   id: string;
   timestamp: string;
-  text: Text;
-  type: string;
+  type: MessageType;
+  text?: TextMessage;
+  interactive: InteractiveMessage;
 }
 
-interface Text {
+interface InteractiveButtonReply {
+  id: string;
+  title: string;
+}
+
+interface InteractiveMessage {
+  type: 'interactive';
+  interactive: {
+    type: 'button_reply';
+    button_reply: InteractiveButtonReply;
+  };
+}
+
+interface TextMessage {
   body: string;
 }
