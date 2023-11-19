@@ -1,4 +1,4 @@
-import { UserModel } from '../../data/models/user.model';
+import { UserModel } from '../../data/models/user';
 import { postgreSQLDatabase } from '../../data/postgreSQL';
 import { AuthDataSource } from '@domain/datasources';
 import { LoginUserDTO, RegisterUserDTO } from '@domain/dtos';

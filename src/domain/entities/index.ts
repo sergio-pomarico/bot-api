@@ -1,4 +1,5 @@
 import UserEntity from './user';
+import ClientEntity from './client';
 import {
   WhatsAppMessageResult,
   WhatsAppResponse,
@@ -8,6 +9,7 @@ import {
 
 export {
   UserEntity,
+  ClientEntity,
   WhatsAppMessage,
   WhatsAppMessageResult,
   WhatsAppResponse,
