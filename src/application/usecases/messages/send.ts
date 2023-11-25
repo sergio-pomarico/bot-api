@@ -1,12 +1,9 @@
 import { WhatsAppMessageDTO } from '@domain/dtos';
-import {
-  WhatsAppMessage,
-  WhatsAppMessageResult,
-  WhatsAppResponse,
-} from '@domain/entities';
+import { WhatsAppMessage, WhatsAppMessageResult } from '@domain/entities';
 import { CacheManager } from '@infrastructure/cache';
 import services from '@infrastructure/services/api';
 import { ConversationScript } from './script';
+import { MessageResponse } from './response';
 
 export interface SendMessageUseCase {
   run: (
@@ -25,14 +22,17 @@ export interface Answer {
 }
 
 export class SendMessage implements SendMessageUseCase {
-  constructor(private readonly cache: CacheManager = new CacheManager()) {
-    this.script = new ConversationScript();
-  }
-  private steps: ConversationStep = { step: 0, answers: [] };
-  private script: ConversationScript;
+  constructor(
+    private readonly cache: CacheManager = new CacheManager(),
+    private readonly responses = new MessageResponse(),
+    private readonly script = new ConversationScript(),
+  ) {}
 
-  updateStep = () => {
+  private steps: ConversationStep = { step: 0, answers: [] };
+
+  updateStep = async (messageDTO: WhatsAppMessageDTO) => {
     this.steps.step++;
+    await this.cache.set(messageDTO!.destination, this.steps);
   };
 
   resetSteps = () => {
@@ -40,54 +40,59 @@ export class SendMessage implements SendMessageUseCase {
   };
 
   updateAnswes = (response: string) => {
-    response;
     this.steps.answers.push({
       id: this.steps.step.toString(),
       answer: response,
     });
   };
 
-  getMessageResponse = (response: WhatsAppResponse) => {
-    if (response.entry && response.entry.length > 0) {
-      const { changes } = response.entry[0];
-      if (changes && changes.length > 0) {
-        const {
-          value: { messages },
-        } = changes[0];
-        if (messages && messages.length > 0) {
-          const { text } = messages[0];
-          return text.body;
-        }
-      }
-    }
-    return null;
-  };
-
   run = async (
     messageDTO: WhatsAppMessageDTO,
   ): Promise<WhatsAppMessageResult | null> => {
-    const currentConversationStep: ConversationStep | undefined =
+    const currentConversationStep: ConversationStep | null =
       (await this.cache.get(messageDTO!.destination)) as ConversationStep;
     let message: WhatsAppMessage;
     if (currentConversationStep !== null) {
+      //1 get the current step
       this.steps = currentConversationStep;
       const { step: currentStep } = this.steps;
-      this.updateAnswes(this.getMessageResponse(messageDTO!.response) ?? '');
-      message = this.script.question(currentStep, messageDTO!.destination);
-      if (message) {
-        this.updateStep();
-        await this.cache.set(messageDTO!.destination, this.steps);
-        const result = await services.send(message!);
-        return result;
-      } else {
-        return null;
+
+      //2. get user response
+      const response = this.responses.parse(messageDTO!.response);
+
+      //3. validate user response
+      if (currentStep === 1) {
+        if (response === 'REVIEW_THE_MENU') {
+          //Send menu
+        } else {
+          this.updateAnswes(response);
+          message = this.script.question(currentStep, messageDTO!.destination);
+          if (message) {
+            //4. update steps and responses
+            this.updateStep(messageDTO);
+
+            //5. send message
+            const result = await services.send(message!);
+
+            //6. save data in DB
+            return result;
+          }
+        }
       }
+      if (currentStep === 2) {
+        this.updateAnswes(response);
+        message = this.script.question(currentStep, messageDTO!.destination);
+        if (!message) {
+          this.updateStep(messageDTO);
+          return null;
+        }
+      }
+      return null;
     } else {
-      message = this.script.question(0, messageDTO!.destination);
       this.resetSteps();
-      this.updateStep();
-      await this.cache.set(messageDTO!.destination, this.steps);
+      message = this.script.question(0, messageDTO!.destination);
       const result = await services.send(message);
+      await this.updateStep(messageDTO);
       return result;
     }
   };

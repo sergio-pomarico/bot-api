@@ -50,12 +50,12 @@ interface InteractiveButtonReply {
   title: string;
 }
 
+type InteractiveTypeMessage = 'button_reply' | 'list_reply';
+
 interface InteractiveMessage {
-  type: 'interactive';
-  interactive: {
-    type: 'button_reply';
-    button_reply: InteractiveButtonReply;
-  };
+  type: InteractiveTypeMessage;
+  button_reply?: InteractiveButtonReply;
+  list_reply?: InteractiveButtonReply;
 }
 
 interface TextMessage {

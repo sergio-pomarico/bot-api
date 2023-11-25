@@ -11,9 +11,18 @@ export class MessageResponse {
         data = response.entry?.[0].changes?.[0].value.messages?.[0].text?.body;
         break;
       case 'interactive':
-        data =
+        if (
           response.entry?.[0].changes?.[0].value.messages?.[0].interactive
-            .interactive.button_reply.id;
+            .type === 'button_reply'
+        ) {
+          data =
+            response.entry?.[0].changes?.[0].value.messages?.[0].interactive
+              ?.button_reply?.id;
+        } else {
+          data =
+            response.entry?.[0].changes?.[0].value.messages?.[0].interactive
+              ?.list_reply?.id;
+        }
         break;
       default:
         break;
