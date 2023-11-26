@@ -22,7 +22,12 @@ export default class ClientDTO {
     if (!result.success) return [result.error, undefined];
     return [
       undefined,
-      new ClientDTO(data.fullname, data.phone, data.address, data.documentId),
+      new ClientDTO(
+        data.fullname!,
+        data.phone!,
+        data.address!,
+        data.documentId!,
+      ),
     ];
   }
 }

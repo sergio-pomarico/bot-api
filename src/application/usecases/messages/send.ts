@@ -1,5 +1,7 @@
 import { WhatsAppMessageDTO } from '@domain/dtos';
 import {
+  ClientEntity,
+  OrderEntity,
   OrderType,
   REVIEW_THE_MENU,
   WhatsAppMessage,
@@ -18,7 +20,8 @@ export interface SendMessageUseCase {
 
 export interface ConversationStep {
   step: number;
-  answers: Answer[];
+  client: ClientEntity | undefined;
+  order: OrderEntity | undefined;
 }
 
 export interface Answer {
@@ -26,7 +29,11 @@ export interface Answer {
   answer: string;
 }
 
-const inistialAnswers: ConversationStep = { step: 0, answers: [] };
+const inistialAnswers: ConversationStep = {
+  step: 0,
+  client: undefined,
+  order: undefined,
+};
 
 export class SendMessage implements SendMessageUseCase {
   constructor(
@@ -46,11 +53,12 @@ export class SendMessage implements SendMessageUseCase {
     this.steps = inistialAnswers;
   };
 
-  updateAnswes = async (response: string, messageDTO: WhatsAppMessageDTO) => {
-    this.steps.answers.push({
-      id: this.steps.step.toString(),
-      answer: response,
-    });
+  updateOrder = async (
+    key: string,
+    response: string | number | Date,
+    messageDTO: WhatsAppMessageDTO,
+  ) => {
+    this.steps.order = { ...this.steps.order, ...{ [key]: response } };
     await this.cache.set(messageDTO!.destination, this.steps);
   };
 
@@ -76,7 +84,7 @@ export class SendMessage implements SendMessageUseCase {
           response === OrderType.HOME_DELIVERY ||
           response === OrderType.PICK_UP_AT_RESTAURANT
         ) {
-          await this.updateAnswes(response, messageDTO);
+          await this.updateOrder('type', response, messageDTO);
           message = this.script.question(currentStep, messageDTO!.destination);
           if (message) {
             //4. update steps and responses
@@ -93,10 +101,19 @@ export class SendMessage implements SendMessageUseCase {
         }
       }
       if (currentStep === 2) {
-        await this.updateAnswes(response, messageDTO);
-        message = this.script.question(currentStep, messageDTO!.destination);
-        if (!message) {
-          this.resetSteps();
+        if (
+          response === '1' ||
+          response === '2' ||
+          response === '3' ||
+          response === '4'
+        ) {
+          await this.updateOrder('restaurantId', response, messageDTO);
+          message = this.script.question(currentStep, messageDTO!.destination);
+          if (!message) {
+            this.resetSteps();
+            return null;
+          }
+        } else {
           return null;
         }
       }
