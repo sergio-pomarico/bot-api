@@ -1,4 +1,4 @@
-import { WhatsAppMessage } from '@domain/entities';
+import { OrderType, REVIEW_THE_MENU, WhatsAppMessage } from '@domain/entities';
 import { MessageBuilder, MessageBuilderHelper } from './build';
 
 export class ConversationScript {
@@ -24,15 +24,15 @@ export class ConversationScript {
               title: 'Opciones',
               rows: [
                 {
-                  id: 'HOME_DELIVERY',
+                  id: OrderType.HOME_DELIVERY,
                   title: 'Pedir domicilio 🛵',
                 },
                 {
-                  id: 'PICK_UP_AT_RESTAURANT',
+                  id: OrderType.PICK_UP_AT_RESTAURANT,
                   title: 'Recoger pedido 🛒',
                 },
                 {
-                  id: 'REVIEW_THE_MENU',
+                  id: REVIEW_THE_MENU,
                   title: 'Revisar la carta 📃',
                 },
               ],

@@ -1,5 +1,10 @@
 import { WhatsAppMessageDTO } from '@domain/dtos';
-import { WhatsAppMessage, WhatsAppMessageResult } from '@domain/entities';
+import {
+  OrderType,
+  REVIEW_THE_MENU,
+  WhatsAppMessage,
+  WhatsAppMessageResult,
+} from '@domain/entities';
 import { CacheManager } from '@infrastructure/cache';
 import services from '@infrastructure/services/api';
 import { ConversationScript } from './script';
@@ -21,6 +26,8 @@ export interface Answer {
   answer: string;
 }
 
+const inistialAnswers: ConversationStep = { step: 0, answers: [] };
+
 export class SendMessage implements SendMessageUseCase {
   constructor(
     private readonly cache: CacheManager = new CacheManager(),
@@ -28,7 +35,7 @@ export class SendMessage implements SendMessageUseCase {
     private readonly script = new ConversationScript(),
   ) {}
 
-  private steps: ConversationStep = { step: 0, answers: [] };
+  private steps: ConversationStep = inistialAnswers;
 
   updateStep = async (messageDTO: WhatsAppMessageDTO) => {
     this.steps.step++;
@@ -36,14 +43,15 @@ export class SendMessage implements SendMessageUseCase {
   };
 
   resetSteps = () => {
-    this.steps = { step: 0, answers: [] };
+    this.steps = inistialAnswers;
   };
 
-  updateAnswes = (response: string) => {
+  updateAnswes = async (response: string, messageDTO: WhatsAppMessageDTO) => {
     this.steps.answers.push({
       id: this.steps.step.toString(),
       answer: response,
     });
+    await this.cache.set(messageDTO!.destination, this.steps);
   };
 
   run = async (
@@ -62,14 +70,17 @@ export class SendMessage implements SendMessageUseCase {
 
       //3. validate user response
       if (currentStep === 1) {
-        if (response === 'REVIEW_THE_MENU') {
+        if (response === REVIEW_THE_MENU) {
           //Send menu
-        } else {
-          this.updateAnswes(response);
+        } else if (
+          response === OrderType.HOME_DELIVERY ||
+          response === OrderType.PICK_UP_AT_RESTAURANT
+        ) {
+          await this.updateAnswes(response, messageDTO);
           message = this.script.question(currentStep, messageDTO!.destination);
           if (message) {
             //4. update steps and responses
-            this.updateStep(messageDTO);
+            await this.updateStep(messageDTO);
 
             //5. send message
             const result = await services.send(message!);
@@ -77,13 +88,15 @@ export class SendMessage implements SendMessageUseCase {
             //6. save data in DB
             return result;
           }
+        } else {
+          return null;
         }
       }
       if (currentStep === 2) {
-        this.updateAnswes(response);
+        await this.updateAnswes(response, messageDTO);
         message = this.script.question(currentStep, messageDTO!.destination);
         if (!message) {
-          this.updateStep(messageDTO);
+          this.resetSteps();
           return null;
         }
       }
