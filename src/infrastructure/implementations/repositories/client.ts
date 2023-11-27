@@ -8,4 +8,7 @@ export class ClientDataRepositoryImpl implements ClientRepository {
   create = async (clientDTO: ClientDTO): Promise<ClientEntity | null> => {
     return this.dataSource.create(clientDTO);
   };
+  find = async (documentId: string): Promise<ClientEntity | null> => {
+    return this.dataSource.find(documentId);
+  };
 }

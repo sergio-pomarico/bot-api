@@ -41,33 +41,10 @@ export class ConversationScript {
         );
         break;
       case 1:
-        message = this.builder.buidInteractiveListMessage(
+        message = this.builder.buildTextMessage(
           destination,
-          'Sedes',
-          'Indica a que sede quieres realizar el pedido',
-          [
-            {
-              title: 'Sedes',
-              rows: [
-                {
-                  id: '1',
-                  title: 'Pilarica',
-                },
-                {
-                  id: '2',
-                  title: 'San Nicolas',
-                },
-                {
-                  id: '3',
-                  title: 'Guayabal',
-                },
-                {
-                  id: '4',
-                  title: 'Bello horizonte',
-                },
-              ],
-            },
-          ],
+          'Para validar si estás registrado por favor ingresa tu número de identificación, sin símbolos o puntos. Ej: 12345678',
+          false,
         );
         break;
       default:

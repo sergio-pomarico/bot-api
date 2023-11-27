@@ -1,19 +1,12 @@
 import { env } from '@shared/utils';
 import { Request, Response } from 'express';
 import { WhatsAppMessageDTO } from '@domain/dtos';
-import {
-  SendMessage,
-  SendMessageUseCase,
-} from '@application/usecases/messages/send';
+import { SendMessageUseCase } from '@application/usecases/messages/send';
 
 const MODE = 'subscribe';
 
 export class WhatsAppController {
-  constructor() {
-    this.sendMessageUsecase = new SendMessage();
-  }
-
-  private readonly sendMessageUsecase: SendMessageUseCase;
+  constructor(private readonly sendMessageUsecase: SendMessageUseCase) {}
 
   challenge = async (req: Request, res: Response) => {
     const mode = req.query['hub.mode'];
