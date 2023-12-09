@@ -1,11 +1,11 @@
 import UserEntity from './user';
 import ClientEntity from './client';
-import OrderEntity, { OrderType, REVIEW_THE_MENU } from './order';
+import OrderEntity, { OrderType } from './order';
 import {
   WhatsAppMessageResult,
   WhatsAppResponse,
   WhatsAppMessage,
-  WhatsAppTextMessage,
+  TextMessage,
 } from './whatsapp';
 
 export {
@@ -14,8 +14,7 @@ export {
   WhatsAppMessage,
   WhatsAppMessageResult,
   WhatsAppResponse,
-  WhatsAppTextMessage,
+  TextMessage,
   OrderEntity,
   OrderType,
-  REVIEW_THE_MENU,
 };

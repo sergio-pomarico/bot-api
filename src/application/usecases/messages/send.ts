@@ -2,17 +2,15 @@ import { WhatsAppMessageDTO } from '@domain/dtos';
 import {
   ClientEntity,
   OrderEntity,
-  OrderType,
-  REVIEW_THE_MENU,
   WhatsAppMessage,
   WhatsAppMessageResult,
 } from '@domain/entities';
-import { CacheManager } from '@infrastructure/cache';
+import { CacheManager } from '@infrastructure/services/cache';
 import services from '@infrastructure/services/api';
 import { ConversationScript } from './script';
 import { MessageResponse } from './response';
-import { ONLY_NUMBERS } from '@shared/utils';
 import { ClientRepository } from '@domain/repositories/client';
+import { OrderQuestionResponse } from './questions';
 
 export interface SendMessageUseCase {
   run: (
@@ -24,11 +22,6 @@ export interface ConversationStep {
   step: number;
   client: ClientEntity | undefined;
   order: OrderEntity | undefined;
-}
-
-export interface Answer {
-  id: string;
-  answer: string;
 }
 
 const inistialAnswers: ConversationStep = {
@@ -49,6 +42,11 @@ export class SendMessage implements SendMessageUseCase {
 
   updateStep = async (messageDTO: WhatsAppMessageDTO) => {
     this.steps.step++;
+    await this.cache.set(messageDTO!.destination, this.steps);
+  };
+
+  setStep = async (step: number, messageDTO: WhatsAppMessageDTO) => {
+    this.steps.step = step;
     await this.cache.set(messageDTO!.destination, this.steps);
   };
 
@@ -90,43 +88,36 @@ export class SendMessage implements SendMessageUseCase {
 
       //3. validate user response
       if (currentStep === 1) {
-        if (response === REVIEW_THE_MENU) {
+        if (response === OrderQuestionResponse.REVIEW_THE_MENU) {
           //Send menu
-        } else if (
-          response === OrderType.HOME_DELIVERY ||
-          response === OrderType.PICK_UP_AT_RESTAURANT
-        ) {
-          await this.updateOrder('type', response, messageDTO);
           message = this.script.question(currentStep, messageDTO!.destination);
           if (message) {
             //4. update steps and responses
             await this.updateStep(messageDTO);
-
             //5. send message
             const result = await services.send(message!);
-
-            //6. save data in DB
             return result;
           }
+        } else if (response === OrderQuestionResponse.MAKE_A_ORDER) {
+          await this.setStep(3, messageDTO);
+          return null;
         } else {
           return null;
         }
       }
       if (currentStep === 2) {
-        if (ONLY_NUMBERS.test(response)) {
-          const client = await this.repository.find(response);
-          console.log(client);
+        message = this.script.question(currentStep, messageDTO!.destination);
+        if (message) {
+          //4. update steps and responses
+          await this.updateStep(messageDTO);
+          //5. send message
+          const result = await services.send(message!);
+          return result;
         }
-
-        //   await this.updateOrder('restaurantId', response, messageDTO);
-        //   message = this.script.question(currentStep, messageDTO!.destination);
-        //   if (!message) {
-        //     this.resetSteps();
-        //     return null;
-        //   }
-        else {
-          return null;
-        }
+      }
+      if (currentStep === 3) {
+        //TODO: Check if user is register
+        return null;
       }
       return null;
     } else {
