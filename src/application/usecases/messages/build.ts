@@ -1,7 +1,8 @@
 import {
   InteractiveMessage,
   LocationMessage,
-  WhatsAppTextMessage,
+  DocumentMessage,
+  TextMessage,
 } from '@domain/entities/whatsapp';
 
 interface PaylodBase {
@@ -38,7 +39,13 @@ export interface MessageBuilderHelper {
     to: string,
     text: string,
     preview_url: boolean,
-  ) => WhatsAppTextMessage;
+  ) => TextMessage;
+  buildDocMessage: (
+    to: string,
+    doc: string,
+    caption?: string,
+    filename?: string,
+  ) => DocumentMessage;
   buildLocationMessage: (
     to: string,
     latitude: number,
@@ -97,13 +104,28 @@ export class MessageBuilder implements MessageBuilderHelper {
     to: string,
     text: string,
     preview_url: boolean,
-  ): WhatsAppTextMessage => ({
+  ): TextMessage => ({
     ...payloadBase,
     to,
     type: 'text',
     text: {
       body: text,
       preview_url,
+    },
+  });
+  buildDocMessage = (
+    to: string,
+    doc: string,
+    caption?: string,
+    filename?: string,
+  ): DocumentMessage => ({
+    ...payloadBase,
+    to,
+    type: 'document',
+    document: {
+      link: doc,
+      caption,
+      filename,
     },
   });
   buildLocationMessage = (

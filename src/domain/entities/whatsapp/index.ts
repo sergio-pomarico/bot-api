@@ -2,16 +2,18 @@ import { WhatsAppResponse } from './response';
 import {
   WhatsAppMessage,
   WhatsAppMessageResult,
-  WhatsAppTextMessage,
+  TextMessage,
   InteractiveMessage,
+  DocumentMessage,
   LocationMessage,
 } from './payload';
 
 export {
   WhatsAppResponse,
   WhatsAppMessage,
-  WhatsAppTextMessage,
+  TextMessage,
   InteractiveMessage,
   LocationMessage,
+  DocumentMessage,
   WhatsAppMessageResult,
 };

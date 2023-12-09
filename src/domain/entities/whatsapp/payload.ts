@@ -133,7 +133,7 @@ export interface LocationMessage extends WhatsAppMessage {
   location: Location;
 }
 
-export interface WhatsAppTextMessage extends WhatsAppMessage {
+export interface TextMessage extends WhatsAppMessage {
   type: 'text';
   text: Text;
 }
