@@ -1,8 +1,13 @@
 import { WhatsAppResponse } from '@domain/entities';
+import { ONLY_NUMBERS } from '@shared/utils';
 import { Request } from 'express';
 import { z } from 'zod';
 
-const messageDTOValidator = z.string().length(12).startsWith('57');
+const messageDTOValidator = z
+  .string()
+  .length(12)
+  .startsWith('57')
+  .regex(ONLY_NUMBERS);
 
 export default class WhatsAppMessageDTO {
   private constructor(

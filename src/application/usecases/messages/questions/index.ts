@@ -3,11 +3,12 @@ import {
   makeOrderQuestion,
   makeOnlyOrderQuestion,
 } from './order';
-import menuQuestion from './menu';
+import { TyCQuestionResponse, tycQuestion } from './tyc';
 
 export {
   makeOrderQuestion,
   makeOnlyOrderQuestion,
   OrderQuestionResponse,
-  menuQuestion,
+  TyCQuestionResponse,
+  tycQuestion,
 };

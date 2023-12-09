@@ -9,8 +9,8 @@ export const makeOrderQuestion = (destination: string, name?: string) =>
   builder.buildReplyButtonsMessage(
     destination,
     `¡Hola ${
-      name ? '' + name + '' : ''
-    }! 😀 Soy el asistente virtual de LOS VERDES que te ayudará a gestionar tu pedido\n¿En qué puedo ayudarte?`,
+      name ? '*' + name + '*' : ''
+    }! 😀 Soy el asistente virtual de LOS VERDES que te ayudará a gestionar tu pedido\n\n¿En qué puedo ayudarte?`,
     [
       {
         type: 'reply',
@@ -32,7 +32,7 @@ export const makeOrderQuestion = (destination: string, name?: string) =>
 export const makeOnlyOrderQuestion = (destination: string) =>
   builder.buildReplyButtonsMessage(
     destination,
-    'Una vez hayas revisado nuestra carta te invitamos a realizar un pedido',
+    '*Carta Los Verdes*\n\nPuedes consultar nuestra carta en el siguiente enlace:\n\n 👉 https://bit.ly/losVerdes\n\nCuando estes listo te invitamos a *realizar un pedido 👇.*',
     [
       {
         type: 'reply',

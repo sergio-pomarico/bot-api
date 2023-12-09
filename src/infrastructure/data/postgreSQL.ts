@@ -40,7 +40,7 @@ export class PostgreSQLDatabase {
       password: options.password,
       database: options.name,
       synchronize: true,
-      logging: true,
+      logging: false,
       entities: [__dirname + '/models/*.model{.ts,.js}'],
     };
   }
