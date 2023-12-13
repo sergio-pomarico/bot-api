@@ -2,15 +2,14 @@ import { WhatsAppMessageDTO } from '@domain/dtos';
 import {
   ClientEntity,
   OrderEntity,
-  WhatsAppMessage,
   WhatsAppMessageResult,
 } from '@domain/entities';
 import { CacheManager } from '@infrastructure/services/cache';
 import services from '@infrastructure/services/api';
-import { ConversationScript } from './script';
+import { ConversationScript, ScriptStep } from './script';
 import { MessageResponse } from './response';
 import { ClientRepository } from '@domain/repositories/client';
-import { OrderQuestionResponse } from './questions';
+import { OrderQuestionResponse, TyCQuestionResponse } from './questions';
 
 export interface SendMessageUseCase {
   run: (
@@ -19,13 +18,13 @@ export interface SendMessageUseCase {
 }
 
 export interface ConversationStep {
-  step: number;
+  step: ScriptStep;
   client: ClientEntity | undefined;
   order: OrderEntity | undefined;
 }
 
 const inistialAnswers: ConversationStep = {
-  step: 0,
+  step: ScriptStep.INITIAL,
   client: undefined,
   order: undefined,
 };
@@ -40,12 +39,7 @@ export class SendMessage implements SendMessageUseCase {
 
   private steps: ConversationStep = inistialAnswers;
 
-  updateStep = async (messageDTO: WhatsAppMessageDTO) => {
-    this.steps.step++;
-    await this.cache.set(messageDTO!.destination, this.steps);
-  };
-
-  setStep = async (step: number, messageDTO: WhatsAppMessageDTO) => {
+  setStep = async (step: ScriptStep, messageDTO: WhatsAppMessageDTO) => {
     this.steps.step = step;
     await this.cache.set(messageDTO!.destination, this.steps);
   };
@@ -72,63 +66,89 @@ export class SendMessage implements SendMessageUseCase {
     await this.cache.set(messageDTO!.destination, this.steps);
   };
 
+  sendMessage = async (
+    step: ScriptStep,
+    messageDTO: WhatsAppMessageDTO,
+  ): Promise<WhatsAppMessageResult> => {
+    const message = this.script.question(step, messageDTO!.destination);
+    await this.setStep(step, messageDTO);
+    const result = await services.send(message!);
+    return result;
+  };
+
   run = async (
     messageDTO: WhatsAppMessageDTO,
   ): Promise<WhatsAppMessageResult | null> => {
     const currentConversationStep: ConversationStep | null =
       (await this.cache.get(messageDTO!.destination)) as ConversationStep;
-    let message: WhatsAppMessage;
     if (currentConversationStep !== null) {
-      //1 get the current step
       this.steps = currentConversationStep;
       const { step: currentStep } = this.steps;
 
-      //2. get user response
       const response = this.responses.parse(messageDTO!.response);
 
-      //3. validate user response
-      if (currentStep === 1) {
+      if ((currentStep as ScriptStep) === ScriptStep.WELCOME) {
         if (response === OrderQuestionResponse.REVIEW_THE_MENU) {
-          //Send menu
-          message = this.script.question(currentStep, messageDTO!.destination);
-          if (message) {
-            //4. update steps and responses
-            await this.updateStep(messageDTO);
-            //5. send message
-            const result = await services.send(message!);
-            return result;
-          }
+          const result = await this.sendMessage(ScriptStep.MENU, messageDTO);
+          return result;
         } else if (response === OrderQuestionResponse.MAKE_A_ORDER) {
-          await this.setStep(3, messageDTO);
+          const client = await this.repository.find(messageDTO!.destination);
+          if (client === null) {
+            const result = await this.sendMessage(ScriptStep.TYC, messageDTO);
+            return result;
+          } else {
+            //check if client updatedAt is lessthan 3 months
+          }
           return null;
         } else {
           return null;
         }
       }
-      if (currentStep === 2) {
-        message = this.script.question(currentStep, messageDTO!.destination);
-        if (message) {
-          //4. update steps and responses
-          await this.updateStep(messageDTO);
-          //5. send message
-          const result = await services.send(message!);
-          return result;
+      if ((currentStep as ScriptStep) === ScriptStep.MENU) {
+        if (response === OrderQuestionResponse.MAKE_A_ORDER) {
+          const client = await this.repository.find(messageDTO!.destination);
+          if (client === null) {
+            const result = await this.sendMessage(ScriptStep.TYC, messageDTO);
+            return result;
+          } else {
+            //check if client updatedAt is lessthan 3 months
+          }
         }
-      }
-      if (currentStep === 3) {
-        //TODO: Check if user is register
         return null;
+      }
+      if ((currentStep as ScriptStep) === ScriptStep.TYC) {
+        console.log('response', response, ScriptStep.TYC);
+        if (response === TyCQuestionResponse.ACCEPT_TYC) {
+          const result = await this.sendMessage(
+            ScriptStep.CLIENT_NAME,
+            messageDTO,
+          );
+          return result;
+        } else {
+          // Reject TyC
+        }
+        return null;
+      }
+      if ((currentStep as ScriptStep) === ScriptStep.CLIENT_NAME) {
+        await this.updateClient('fullname', response, messageDTO);
+        const result = await this.sendMessage(
+          ScriptStep.CLIENT_ADDRESS,
+          messageDTO,
+        );
+        return result;
+      }
+      if ((currentStep as ScriptStep) === ScriptStep.CLIENT_ADDRESS) {
+        await this.updateClient('address', response, messageDTO);
+        const result = await this.sendMessage(
+          ScriptStep.CLIENT_NATIONAL_ID,
+          messageDTO,
+        );
+        return result;
       }
       return null;
     } else {
       this.resetSteps();
-      message = this.script.question(
-        0,
-        messageDTO!.destination,
-        messageDTO!.name,
-      );
-      const result = await services.send(message);
-      await this.updateStep(messageDTO);
+      const result = await this.sendMessage(ScriptStep.WELCOME, messageDTO);
       return result;
     }
   };

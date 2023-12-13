@@ -2,13 +2,13 @@ import builder from './builder';
 
 export enum TyCQuestionResponse {
   ACCEPT_TYC = 'ACCEPT_TYC',
-  REJECT_TYC = 'ACCEPT_TYC',
+  REJECT_TYC = 'REJECT_TYC',
 }
 
 export const tycQuestion = (destination: string) =>
   builder.buildReplyButtonsMessage(
     destination,
-    'Acepta los términos y condiciones\n\n 👉 https://bit.ly/',
+    'Tus datos serán tratados de acuerdo con la política de privacidad de datos que puedes consultar en:\n\n 👉 https://bit.ly/\n\n¿Estás de acuerdo?',
     [
       {
         type: 'reply',
@@ -20,7 +20,7 @@ export const tycQuestion = (destination: string) =>
       {
         type: 'reply',
         reply: {
-          id: TyCQuestionResponse.ACCEPT_TYC,
+          id: TyCQuestionResponse.REJECT_TYC,
           title: 'Rechazar ❌',
         },
       },
