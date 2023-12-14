@@ -19,10 +19,7 @@ export const env = {
     apiUrl: get('WS_API_URL').required().asString(),
   },
   redis: {
-    pass: get('REDIS_PASS').required().asString(),
-    host: get('REDIS_HOST').required().asString(),
-    user: get('REDIS_USER').required().asString(),
-    port: get('REDIS_PORT').required().asPortNumber(),
+    url: get('REDIS_URL').required().asString(),
   },
 };
 
