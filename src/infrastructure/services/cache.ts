@@ -6,10 +6,10 @@ type CacheValue = object | string | boolean | number;
 export class CacheManager {
   constructor() {
     const {
-      redis: { user, pass, host, port },
+      redis: { url },
     } = env;
     this.client = createClient({
-      url: `redis://${user}:${pass}@${host}:${port}`,
+      url,
     });
     this.connect();
   }
