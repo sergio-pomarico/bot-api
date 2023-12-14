@@ -8,6 +8,7 @@ import {
   clientNameQuestion,
   clientAddressQuestion,
   clientNationalIDQuestion,
+  clientConfirmationQuestion,
 } from './client';
 
 export {
@@ -19,4 +20,5 @@ export {
   clientNameQuestion,
   clientAddressQuestion,
   clientNationalIDQuestion,
+  clientConfirmationQuestion,
 };

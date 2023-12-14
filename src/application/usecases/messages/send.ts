@@ -1,4 +1,4 @@
-import { WhatsAppMessageDTO } from '@domain/dtos';
+import { ClientDTO, WhatsAppMessageDTO } from '@domain/dtos';
 import {
   ClientEntity,
   OrderEntity,
@@ -9,7 +9,12 @@ import services from '@infrastructure/services/api';
 import { ConversationScript, ScriptStep } from './script';
 import { MessageResponse } from './response';
 import { ClientRepository } from '@domain/repositories/client';
-import { OrderQuestionResponse, TyCQuestionResponse } from './questions';
+import {
+  OrderQuestionResponse,
+  TyCQuestionResponse,
+  clientConfirmationQuestion,
+} from './questions';
+import { ClientQuestionResponse } from './questions/client';
 
 export interface SendMessageUseCase {
   run: (
@@ -117,7 +122,6 @@ export class SendMessage implements SendMessageUseCase {
         return null;
       }
       if ((currentStep as ScriptStep) === ScriptStep.TYC) {
-        console.log('response', response, ScriptStep.TYC);
         if (response === TyCQuestionResponse.ACCEPT_TYC) {
           const result = await this.sendMessage(
             ScriptStep.CLIENT_NAME,
@@ -144,6 +148,34 @@ export class SendMessage implements SendMessageUseCase {
           messageDTO,
         );
         return result;
+      }
+      if ((currentStep as ScriptStep) === ScriptStep.CLIENT_NATIONAL_ID) {
+        await this.updateClient('documentId', response, messageDTO);
+        const message = clientConfirmationQuestion(
+          messageDTO!.destination,
+          `Nombre: ${this.steps.client!.fullname}\n
+           Dirección: ${this.steps.client!.address}\nCédula: ${
+            this.steps.client!.documentId
+          }\nTelefono: ${messageDTO!.destination}`,
+        );
+        await this.setStep(ScriptStep.CONFIRM_CLIENT_DATA, messageDTO);
+        const result = await services.send(message!);
+        return result;
+      }
+      if ((currentStep as ScriptStep) === ScriptStep.CONFIRM_CLIENT_DATA) {
+        if (response === ClientQuestionResponse.ACCEPT_DATA) {
+          const [error, registerDTO] = ClientDTO.create({
+            ...this.steps.client!,
+            documentId: this.steps.client!.documentId?.toString(),
+            phone: messageDTO!.destination,
+          });
+          if (error) {
+            console.error(error);
+            return null;
+          }
+          this.repository.create(registerDTO!);
+        }
+        return null;
       }
       return null;
     } else {

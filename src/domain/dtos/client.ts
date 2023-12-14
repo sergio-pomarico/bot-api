@@ -2,9 +2,10 @@ import { ClientEntity } from '@domain/entities';
 import { z } from 'zod';
 
 const clientDTOValidator = z.object({
-  email: z.string().email(),
+  phone: z.string().min(10),
   fullname: z.string(),
   address: z.string(),
+  documentId: z.string(),
 });
 
 export default class ClientDTO {
@@ -14,7 +15,7 @@ export default class ClientDTO {
     public address: string,
     public documentId: string,
   ) {}
-  static create(data: { [key in keyof ClientEntity]: string }): [
+  static create(data: { [key in keyof ClientEntity]: unknown }): [
     Error?,
     ClientDTO?,
   ] {
@@ -23,10 +24,10 @@ export default class ClientDTO {
     return [
       undefined,
       new ClientDTO(
-        data.fullname!,
-        data.phone!,
-        data.address!,
-        data.documentId!,
+        data.fullname as string,
+        data.phone as string,
+        data.address as string,
+        data.documentId as string,
       ),
     ];
   }
