@@ -1,3 +1,4 @@
+import { differenceInDays } from 'date-fns';
 import { ClientDTO, WhatsAppMessageDTO } from '@domain/dtos';
 import {
   ClientEntity,
@@ -103,6 +104,15 @@ export class SendMessage implements SendMessageUseCase {
             return result;
           } else {
             //check if client updatedAt is lessthan 3 months
+            if (differenceInDays(new Date(), client.updatedAt!) >= 90) {
+              const result = await this.sendMessage(
+                ScriptStep.CLIENT_VERFIFY_NATIONAL_ID,
+                messageDTO,
+              );
+              return result;
+            } else {
+              //send menu
+            }
           }
           return null;
         } else {
@@ -117,9 +127,29 @@ export class SendMessage implements SendMessageUseCase {
             return result;
           } else {
             //check if client updatedAt is lessthan 3 months
+            if (differenceInDays(new Date(), client.updatedAt!) >= 90) {
+              const result = await this.sendMessage(
+                ScriptStep.CLIENT_VERFIFY_NATIONAL_ID,
+                messageDTO,
+              );
+              return result;
+            } else {
+              //send menu
+            }
           }
         }
         return null;
+      }
+      if (
+        (currentStep as ScriptStep) === ScriptStep.CLIENT_VERFIFY_NATIONAL_ID
+      ) {
+        const client = await this.repository.find(messageDTO!.destination);
+        const { documentId } = client!;
+        if (response === documentId?.toString().slice(-4)) {
+          //send menu
+        } else {
+          //reject
+        }
       }
       if ((currentStep as ScriptStep) === ScriptStep.TYC) {
         if (response === TyCQuestionResponse.ACCEPT_TYC) {
@@ -151,12 +181,13 @@ export class SendMessage implements SendMessageUseCase {
       }
       if ((currentStep as ScriptStep) === ScriptStep.CLIENT_NATIONAL_ID) {
         await this.updateClient('documentId', response, messageDTO);
+        const { client } = this.steps;
         const message = clientConfirmationQuestion(
           messageDTO!.destination,
-          `Nombre: ${this.steps.client!.fullname}\n
-           Dirección: ${this.steps.client!.address}\nCédula: ${
-            this.steps.client!.documentId
-          }\nTelefono: ${messageDTO!.destination}`,
+          `Nombre: ${client!.fullname}\n
+          Dirección: ${client!.address}\n
+          Cédula: ${client!.documentId}\n
+          Telefono: ${messageDTO!.destination}`,
         );
         await this.setStep(ScriptStep.CONFIRM_CLIENT_DATA, messageDTO);
         const result = await services.send(message!);

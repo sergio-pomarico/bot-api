@@ -6,6 +6,7 @@ import {
   clientNameQuestion,
   clientAddressQuestion,
   clientNationalIDQuestion,
+  clientVerifyNationalIDQuestion,
 } from './questions';
 
 export enum ScriptStep {
@@ -16,6 +17,7 @@ export enum ScriptStep {
   CLIENT_NAME = 'CLIENT_NAME',
   CLIENT_ADDRESS = 'CLIENT_ADDRESS',
   CLIENT_NATIONAL_ID = 'CLIENT_NATIONAL_ID',
+  CLIENT_VERFIFY_NATIONAL_ID = 'CLIENT_VERFIFY_NATIONAL_ID',
   CONFIRM_CLIENT_DATA = 'CONFIRM_CLIENT_DATA',
 }
 
@@ -44,6 +46,9 @@ export class ConversationScript {
         break;
       case ScriptStep.CLIENT_NATIONAL_ID:
         message = clientNationalIDQuestion(destination);
+        break;
+      case ScriptStep.CLIENT_VERFIFY_NATIONAL_ID:
+        message = clientVerifyNationalIDQuestion(destination);
         break;
       default:
         break;

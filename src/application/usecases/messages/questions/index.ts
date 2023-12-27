@@ -9,6 +9,7 @@ import {
   clientAddressQuestion,
   clientNationalIDQuestion,
   clientConfirmationQuestion,
+  clientVerifyNationalIDQuestion,
 } from './client';
 
 export {
@@ -21,4 +22,5 @@ export {
   clientAddressQuestion,
   clientNationalIDQuestion,
   clientConfirmationQuestion,
+  clientVerifyNationalIDQuestion,
 };

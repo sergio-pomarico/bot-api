@@ -9,6 +9,14 @@ export const clientNameQuestion = (destination: string) => {
   return builder.buildTextMessage(destination, '¿Cuál es tu nombre?', false);
 };
 
+export const clientVerifyNationalIDQuestion = (destination: string) => {
+  return builder.buildTextMessage(
+    destination,
+    'Detectamos que eres un usuario registrado, para continuar por favor ingresa los 4 ultimos digitos de tu número de cédula',
+    false,
+  );
+};
+
 export const clientAddressQuestion = (destination: string) => {
   return builder.buildTextMessage(destination, '¿Cuál es tu dirección?', false);
 };
