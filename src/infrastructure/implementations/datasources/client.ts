@@ -6,12 +6,12 @@ import { ClientModel } from '@infrastructure/data/models/client.model';
 import { postgreSQLDatabase } from '@infrastructure/data/postgreSQL';
 
 export class ClientDataSourceImpl implements ClientDataSource {
-  find = async (documentId: string): Promise<ClientEntity | null> => {
+  find = async (phone: string): Promise<ClientEntity | null> => {
     try {
       const databaseRepository =
         postgreSQLDatabase.datasource.getRepository(ClientModel);
       const clientFound = await databaseRepository.findOneBy({
-        documentId: parseInt(documentId),
+        phone: parseInt(phone),
       });
       return clientFound;
     } catch (error) {

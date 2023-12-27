@@ -11,6 +11,7 @@ export const env = {
     name: get('DB_NAME').required().asString(),
     password: get('DB_PASSWORD').required().asString(),
     username: get('DB_USER').required().asString(),
+    ssl: get('DB_SSL').required().asBool(),
   },
   whatsapp: {
     challenge: get('WS_CHALLENGE').required().asString(),

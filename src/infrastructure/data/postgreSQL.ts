@@ -7,6 +7,7 @@ interface Options {
   username: string;
   password: string;
   name: string;
+  ssl: boolean;
 }
 
 export class PostgreSQLDatabase {
@@ -41,7 +42,7 @@ export class PostgreSQLDatabase {
       database: options.name,
       synchronize: true,
       logging: false,
-      ssl: true,
+      ssl: options.ssl,
       entities: [__dirname + '/models/*.model{.ts,.js}'],
     };
   }
