@@ -1,7 +1,7 @@
 import { ClientDataSource } from '@domain/datasources';
 import { ClientDTO } from '@domain/dtos';
 import { ClientEntity } from '@domain/entities';
-import { ClientRepository } from '@domain/repositories/client';
+import { ClientRepository } from '@domain/repositories';
 
 export class ClientDataRepositoryImpl implements ClientRepository {
   constructor(private readonly dataSource: ClientDataSource) {}

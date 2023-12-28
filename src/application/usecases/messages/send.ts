@@ -9,7 +9,7 @@ import { CacheManager } from '@infrastructure/services/cache';
 import services from '@infrastructure/services/api';
 import { ConversationScript, ScriptStep } from './script';
 import { MessageResponse } from './response';
-import { ClientRepository } from '@domain/repositories/client';
+import { ClientRepository } from '@domain/repositories';
 import {
   OrderQuestionResponse,
   TyCQuestionResponse,

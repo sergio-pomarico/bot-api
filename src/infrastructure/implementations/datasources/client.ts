@@ -1,4 +1,4 @@
-import ClientDataSource from '@domain/datasources/client';
+import { ClientDataSource } from '@domain/datasources';
 import { ClientDTO } from '@domain/dtos';
 import { ClientEntity } from '@domain/entities';
 import { CustomHTTPError } from '@domain/errors/custom';

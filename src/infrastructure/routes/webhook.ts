@@ -3,7 +3,7 @@ import {
   SendMessageUseCase,
 } from '@application/usecases/messages/send';
 import { ClientDataSource } from '@domain/datasources';
-import { ClientRepository } from '@domain/repositories/client';
+import { ClientRepository } from '@domain/repositories';
 import { WhatsAppController } from '@infrastructure/controllers/whatsapp';
 import { ClientDataSourceImpl } from '@infrastructure/implementations/datasources/client';
 import { ClientDataRepositoryImpl } from '@infrastructure/implementations/repositories/client';
