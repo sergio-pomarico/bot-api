@@ -126,7 +126,6 @@ export class SendMessage implements SendMessageUseCase {
             const result = await this.sendMessage(ScriptStep.TYC, messageDTO);
             return result;
           } else {
-            //check if client updatedAt is lessthan 3 months
             if (differenceInDays(new Date(), client.updatedAt!) >= 90) {
               const result = await this.sendMessage(
                 ScriptStep.CLIENT_VERFIFY_NATIONAL_ID,
@@ -159,8 +158,14 @@ export class SendMessage implements SendMessageUseCase {
           );
           return result;
         } else {
-          // Reject TyC
+          const result = await this.sendMessage(
+            ScriptStep.REJECT_TYC,
+            messageDTO,
+          );
+          return result;
         }
+      }
+      if ((currentStep as ScriptStep) === ScriptStep.REJECT_TYC) {
         return null;
       }
       if ((currentStep as ScriptStep) === ScriptStep.CLIENT_NAME) {
@@ -182,12 +187,14 @@ export class SendMessage implements SendMessageUseCase {
       if ((currentStep as ScriptStep) === ScriptStep.CLIENT_NATIONAL_ID) {
         await this.updateClient('documentId', response, messageDTO);
         const { client } = this.steps;
+        let textMessage = 'Por favor confirma tus datos\n\n';
+        textMessage += `Nombre: *${client!.fullname}*\n`;
+        textMessage += `Dirección: *${client!.address}*\n`;
+        textMessage += `Cédula: *${client!.documentId}*\n`;
+        textMessage += `Telefono: *${messageDTO!.destination}*`;
         const message = clientConfirmationQuestion(
           messageDTO!.destination,
-          `Nombre: ${client!.fullname}\n
-          Dirección: ${client!.address}\n
-          Cédula: ${client!.documentId}\n
-          Telefono: ${messageDTO!.destination}`,
+          textMessage,
         );
         await this.setStep(ScriptStep.CONFIRM_CLIENT_DATA, messageDTO);
         const result = await services.send(message!);
@@ -205,6 +212,12 @@ export class SendMessage implements SendMessageUseCase {
             return null;
           }
           this.repository.create(registerDTO!);
+        } else if (response === ClientQuestionResponse.REJECT_DATA) {
+          const result = await this.sendMessage(
+            ScriptStep.CLIENT_NAME,
+            messageDTO,
+          );
+          return result;
         }
         return null;
       }

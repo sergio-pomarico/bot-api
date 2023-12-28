@@ -8,7 +8,7 @@ export enum TyCQuestionResponse {
 export const tycQuestion = (destination: string) =>
   builder.buildReplyButtonsMessage(
     destination,
-    'Tus datos serán tratados de acuerdo con la política de privacidad de datos que puedes consultar en:\n\n 👉 https://bit.ly/\n\n¿Estás de acuerdo?',
+    'Actualmente no te encuentras registrado con nosotros.\n\nAl realizar dicho registro aceptas que tus datos sean tratados de acuerdo con la política de privacidad de datos que puedes consultar en:\n\n 👉 https://bit.ly/\n\n¿Deseas realizar un registro corto para continuar el proceso?',
     [
       {
         type: 'reply',
@@ -25,4 +25,11 @@ export const tycQuestion = (destination: string) =>
         },
       },
     ],
+  );
+
+export const rejectTYCQuestion = (destination: string) =>
+  builder.buildTextMessage(
+    destination,
+    'Lo sentimos, al rechazar nuestros términos y condiciones no podemos tomar tu pedido.\nTe esperamos nuevamente en una próxima oportunidad.',
+    false,
   );

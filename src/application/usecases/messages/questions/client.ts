@@ -5,10 +5,6 @@ export enum ClientQuestionResponse {
   REJECT_DATA = 'REJECT_DATA',
 }
 
-export const clientNameQuestion = (destination: string) => {
-  return builder.buildTextMessage(destination, '¿Cuál es tu nombre?', false);
-};
-
 export const clientVerifyNationalIDQuestion = (destination: string) => {
   return builder.buildTextMessage(
     destination,
@@ -17,8 +13,20 @@ export const clientVerifyNationalIDQuestion = (destination: string) => {
   );
 };
 
+export const clientNameQuestion = (destination: string) => {
+  return builder.buildTextMessage(
+    destination,
+    '¿Cuál es tu nombre completo?',
+    false,
+  );
+};
+
 export const clientAddressQuestion = (destination: string) => {
-  return builder.buildTextMessage(destination, '¿Cuál es tu dirección?', false);
+  return builder.buildTextMessage(
+    destination,
+    '¿Cuál es tu dirección?\n\nRecuerda especificar el nombre de tu unidad/edificio y el número de tu apartamento en caso de ser necesario.',
+    false,
+  );
 };
 
 export const clientNationalIDQuestion = (destination: string) => {
@@ -45,7 +53,7 @@ export const clientConfirmationQuestion = (
       type: 'reply',
       reply: {
         id: ClientQuestionResponse.REJECT_DATA,
-        title: 'Rechazar ❌',
+        title: 'Corregir ✍️',
       },
     },
   ]);

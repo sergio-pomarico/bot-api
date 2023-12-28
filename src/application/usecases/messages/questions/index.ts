@@ -3,7 +3,7 @@ import {
   makeOrderQuestion,
   makeOnlyOrderQuestion,
 } from './order';
-import { TyCQuestionResponse, tycQuestion } from './tyc';
+import { TyCQuestionResponse, tycQuestion, rejectTYCQuestion } from './tyc';
 import {
   clientNameQuestion,
   clientAddressQuestion,
@@ -18,6 +18,7 @@ export {
   OrderQuestionResponse,
   TyCQuestionResponse,
   tycQuestion,
+  rejectTYCQuestion,
   clientNameQuestion,
   clientAddressQuestion,
   clientNationalIDQuestion,

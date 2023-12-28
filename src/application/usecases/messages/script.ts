@@ -3,6 +3,7 @@ import {
   makeOrderQuestion,
   makeOnlyOrderQuestion,
   tycQuestion,
+  rejectTYCQuestion,
   clientNameQuestion,
   clientAddressQuestion,
   clientNationalIDQuestion,
@@ -14,6 +15,7 @@ export enum ScriptStep {
   WELCOME = 'WELCOME',
   MENU = 'MENU',
   TYC = 'TYC',
+  REJECT_TYC = 'REJECT_TYC',
   CLIENT_NAME = 'CLIENT_NAME',
   CLIENT_ADDRESS = 'CLIENT_ADDRESS',
   CLIENT_NATIONAL_ID = 'CLIENT_NATIONAL_ID',
@@ -37,6 +39,9 @@ export class ConversationScript {
         break;
       case ScriptStep.TYC:
         message = tycQuestion(destination);
+        break;
+      case ScriptStep.REJECT_TYC:
+        message = rejectTYCQuestion(destination);
         break;
       case ScriptStep.CLIENT_NAME:
         message = clientNameQuestion(destination);

@@ -10,7 +10,7 @@ export const makeOrderQuestion = (destination: string, name?: string) =>
     destination,
     `¡Hola ${
       name ? '*' + name + '*' : ''
-    }! 😀 Soy el asistente virtual de LOS VERDES que te ayudará a gestionar tu pedido\n\n¿En qué puedo ayudarte?`,
+    }! 😀 Soy el asistente virtual de *LOS VERDES*\n\n¿En qué puedo ayudarte?`,
     [
       {
         type: 'reply',
