@@ -1,5 +1,6 @@
 import { Router } from 'express';
 import { AuthRoutes } from './auth';
+import { CategoryRoutes } from './category';
 import { WebHookRoutes } from './webhook';
 
 export class AppRoutes {
@@ -8,6 +9,7 @@ export class AppRoutes {
 
     router.use('/auth', new AuthRoutes().router);
     router.use('/whatsapp', new WebHookRoutes().router);
+    router.use('/category', new CategoryRoutes().router);
 
     return router;
   }

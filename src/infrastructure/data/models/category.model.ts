@@ -1,4 +1,4 @@
-import { ProductCategoryEntity } from '@domain/entities';
+import { CategoryEntity } from '@domain/entities';
 import {
   Column,
   CreateDateColumn,
@@ -7,13 +7,13 @@ import {
   UpdateDateColumn,
 } from 'typeorm';
 
-@Entity({ name: 'product category' })
-export class ProductCategoryModel implements ProductCategoryEntity {
+@Entity({ name: 'category' })
+export class CategoryModel implements CategoryEntity {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
   @Column()
-  fullname: string;
+  title: string;
 
   @CreateDateColumn({
     name: 'created_at',

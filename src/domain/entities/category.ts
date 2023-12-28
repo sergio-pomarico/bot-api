@@ -1,4 +1,4 @@
-export default interface ProductCategoryEntity {
+export default interface CategoryEntity {
   id?: string;
   title?: string;
   createdAt?: Date;

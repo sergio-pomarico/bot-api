@@ -1,5 +1,5 @@
 import { AuthRepository } from './auth';
 import { ClientRepository } from './client';
-import { ProductCategoryRepository } from './product_category';
+import { CategoryRepository } from './category';
 
-export { AuthRepository, ClientRepository, ProductCategoryRepository };
+export { AuthRepository, ClientRepository, CategoryRepository };
