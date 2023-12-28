@@ -1,10 +1,14 @@
+import { GetAllCategoriesUseCase } from '@application/usecases/category/all';
 import { CreateCategoryUseCase } from '@application/usecases/category/create';
 import { CategoryDTO } from '@domain/dtos';
 import { CustomHTTPError } from '@domain/errors/custom';
 import { Request, Response } from 'express';
 
 export class CategoryController {
-  constructor(private readonly createCategory: CreateCategoryUseCase) {}
+  constructor(
+    private readonly createCategory: CreateCategoryUseCase,
+    private readonly getCategories: GetAllCategoriesUseCase,
+  ) {}
   handlerError = (error: unknown, res: Response) => {
     if (error instanceof CustomHTTPError) {
       return res.status(error.httpCode).json({ error: error.message });
@@ -20,5 +24,13 @@ export class CategoryController {
       })
       .catch((error) => this.handlerError(error, res));
     if (error) return res.status(400).json({ error });
+  };
+  all = async (_: Request, res: Response) => {
+    this.getCategories
+      .run()
+      .then((response) => {
+        return res.status(200).json([...(response || [])]);
+      })
+      .catch((error) => this.handlerError(error, res));
   };
 }

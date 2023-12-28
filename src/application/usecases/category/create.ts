@@ -9,6 +9,6 @@ export class CreateCategory implements CreateCategoryUseCase {
   constructor(private readonly repository: CategoryRepository) {}
   run = async (categoryDTO: CategoryDTO): Promise<CategoryEntity> => {
     const category = await this.repository.create(categoryDTO!);
-    return category!;
+    return { ...category };
   };
 }

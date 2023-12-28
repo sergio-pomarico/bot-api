@@ -8,5 +8,7 @@ export class CategoryRepositoryImpl implements CategoryRepository {
   create = async (categoryDTO: CategoryDTO): Promise<CategoryEntity | null> => {
     return this.dataSource.create(categoryDTO);
   };
-  all: () => Promise<CategoryEntity[] | null>;
+  all = async (): Promise<CategoryEntity[] | null> => {
+    return this.dataSource.all();
+  };
 }

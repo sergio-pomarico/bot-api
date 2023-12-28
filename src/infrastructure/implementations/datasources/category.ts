@@ -20,5 +20,17 @@ export class CategoryDataSourceImpl implements CategoryDataSource {
       return null;
     }
   };
-  all: () => Promise<CategoryEntity[] | null>;
+  all = async (): Promise<CategoryEntity[] | null> => {
+    try {
+      const databaseRepository =
+        postgreSQLDatabase.datasource.getRepository(CategoryModel);
+      const categories = await databaseRepository.find();
+      return categories;
+    } catch (error) {
+      if (error instanceof Error) {
+        throw error;
+      }
+      return null;
+    }
+  };
 }
