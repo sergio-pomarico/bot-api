@@ -11,6 +11,7 @@ import {
   clientConfirmationQuestion,
   clientVerifyNationalIDQuestion,
 } from './client';
+import { categoriesQuestion } from './products';
 
 export {
   makeOrderQuestion,
@@ -24,4 +25,5 @@ export {
   clientNationalIDQuestion,
   clientConfirmationQuestion,
   clientVerifyNationalIDQuestion,
+  categoriesQuestion,
 };

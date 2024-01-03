@@ -9,10 +9,11 @@ import { CacheManager } from '@infrastructure/services/cache';
 import services from '@infrastructure/services/api';
 import { ConversationScript, ScriptStep } from './script';
 import { MessageResponse } from './response';
-import { ClientRepository } from '@domain/repositories';
+import { ClientRepository, CategoryRepository } from '@domain/repositories';
 import {
   OrderQuestionResponse,
   TyCQuestionResponse,
+  categoriesQuestion,
   clientConfirmationQuestion,
 } from './questions';
 import { ClientQuestionResponse } from './questions/client';
@@ -37,7 +38,8 @@ const inistialAnswers: ConversationStep = {
 
 export class SendMessage implements SendMessageUseCase {
   constructor(
-    private readonly repository: ClientRepository,
+    private readonly clientRepository: ClientRepository,
+    private readonly categoryRepository: CategoryRepository,
     private readonly cache: CacheManager = new CacheManager(),
     private readonly responses = new MessageResponse(),
     private readonly script = new ConversationScript(),
@@ -98,7 +100,9 @@ export class SendMessage implements SendMessageUseCase {
           const result = await this.sendMessage(ScriptStep.MENU, messageDTO);
           return result;
         } else if (response === OrderQuestionResponse.MAKE_A_ORDER) {
-          const client = await this.repository.find(messageDTO!.destination);
+          const client = await this.clientRepository.find(
+            messageDTO!.destination,
+          );
           if (client === null) {
             const result = await this.sendMessage(ScriptStep.TYC, messageDTO);
             return result;
@@ -111,17 +115,30 @@ export class SendMessage implements SendMessageUseCase {
               );
               return result;
             } else {
-              //send menu
+              const categories = await this.categoryRepository.all();
+              let categoriesMessage = 'Por favor selecciona una categoría\n\n';
+              categories?.map((category, index) => {
+                categoriesMessage += `${String.fromCharCode(
+                  64 + index + 1,
+                )}) *${category.title}*\n`;
+              });
+              const message = categoriesQuestion(
+                messageDTO.destination,
+                categoriesMessage,
+              );
+              const result = await services.send(message!);
+              return result;
             }
           }
-          return null;
         } else {
           return null;
         }
       }
       if ((currentStep as ScriptStep) === ScriptStep.MENU) {
         if (response === OrderQuestionResponse.MAKE_A_ORDER) {
-          const client = await this.repository.find(messageDTO!.destination);
+          const client = await this.clientRepository.find(
+            messageDTO!.destination,
+          );
           if (client === null) {
             const result = await this.sendMessage(ScriptStep.TYC, messageDTO);
             return result;
@@ -133,7 +150,7 @@ export class SendMessage implements SendMessageUseCase {
               );
               return result;
             } else {
-              //send menu
+              //greetins client
             }
           }
         }
@@ -142,12 +159,14 @@ export class SendMessage implements SendMessageUseCase {
       if (
         (currentStep as ScriptStep) === ScriptStep.CLIENT_VERFIFY_NATIONAL_ID
       ) {
-        const client = await this.repository.find(messageDTO!.destination);
+        const client = await this.clientRepository.find(
+          messageDTO!.destination,
+        );
         const { documentId } = client!;
         if (response === documentId?.toString().slice(-4)) {
-          //send menu
+          //greetins client
         } else {
-          //reject
+          //reject client
         }
       }
       if ((currentStep as ScriptStep) === ScriptStep.TYC) {
@@ -211,7 +230,7 @@ export class SendMessage implements SendMessageUseCase {
             console.error(error);
             return null;
           }
-          this.repository.create(registerDTO!);
+          this.clientRepository.create(registerDTO!);
         } else if (response === ClientQuestionResponse.REJECT_DATA) {
           const result = await this.sendMessage(
             ScriptStep.CLIENT_NAME,
