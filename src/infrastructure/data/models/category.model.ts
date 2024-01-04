@@ -1,29 +1,13 @@
 import { CategoryEntity } from '@domain/entities';
-import {
-  Column,
-  CreateDateColumn,
-  Entity,
-  PrimaryGeneratedColumn,
-  UpdateDateColumn,
-} from 'typeorm';
+import { Column, Entity, OneToMany } from 'typeorm';
+import { ProductModel } from './product.model';
+import { BaseModel } from './base.model';
 
 @Entity({ name: 'category' })
-export class CategoryModel implements CategoryEntity {
-  @PrimaryGeneratedColumn('uuid')
-  id: string;
-
+export class CategoryModel extends BaseModel implements CategoryEntity {
   @Column()
   title: string;
 
-  @CreateDateColumn({
-    name: 'created_at',
-    type: 'timestamp',
-  })
-  createdAt: Date;
-
-  @UpdateDateColumn({
-    name: 'updated_at',
-    type: 'timestamp',
-  })
-  updatedAt: Date;
+  @OneToMany(() => ProductModel, (product) => product.category)
+  products: ProductModel[];
 }

@@ -1,17 +1,9 @@
 import { UserEntity } from '@domain/entities';
-import {
-  Entity,
-  Column,
-  CreateDateColumn,
-  PrimaryGeneratedColumn,
-  UpdateDateColumn,
-} from 'typeorm';
+import { Entity, Column } from 'typeorm';
+import { BaseModel } from './base.model';
 
 @Entity({ name: 'user' })
-export class UserModel implements UserEntity {
-  @PrimaryGeneratedColumn('uuid')
-  id: string;
-
+export class UserModel extends BaseModel implements UserEntity {
   @Column({ unique: true })
   email: string;
 
@@ -30,16 +22,4 @@ export class UserModel implements UserEntity {
     nullable: true,
   })
   lastLogin: Date;
-
-  @CreateDateColumn({
-    name: 'created_at',
-    type: 'timestamp',
-  })
-  createdAt: Date;
-
-  @UpdateDateColumn({
-    name: 'updated_at',
-    type: 'timestamp',
-  })
-  updatedAt: Date;
 }
