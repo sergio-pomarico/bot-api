@@ -8,8 +8,8 @@ export class ProductModel extends BaseModel implements ProductEntity {
   @Column()
   name: string;
 
-  @Column()
-  description: string;
+  @Column({ nullable: true })
+  description?: string;
 
   @Column()
   price: number;

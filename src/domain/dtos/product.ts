@@ -6,7 +6,7 @@ const productDTOValidator = z.object({
   name: z.string().min(3),
   price: z.string().min(1),
   description: z.string().optional(),
-  categoryId: z.string().optional(),
+  category: z.string().optional(),
 });
 
 export default class ProductDTO {
@@ -14,7 +14,7 @@ export default class ProductDTO {
     public name: string,
     public price: number,
     public description?: string,
-    public categoryId?: string,
+    public category?: string,
   ) {}
 
   static create(data: { [key in keyof ProductEntity]: string }): [
