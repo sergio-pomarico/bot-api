@@ -1,5 +1,5 @@
 import { ProductEntity } from '@domain/entities';
-import { Column, Entity, ManyToOne } from 'typeorm';
+import { Column, Entity, JoinColumn, ManyToOne } from 'typeorm';
 import { CategoryModel } from './category.model';
 import { BaseModel } from './base.model';
 
@@ -14,6 +14,10 @@ export class ProductModel extends BaseModel implements ProductEntity {
   @Column()
   price: number;
 
-  @ManyToOne(() => CategoryModel, (category) => category.id)
-  category: CategoryModel['id'];
+  @Column({ name: 'category_id' })
+  categoryId?: string;
+
+  @ManyToOne(() => CategoryModel, (category) => category.products)
+  @JoinColumn({ name: 'category_id' })
+  category: CategoryModel;
 }

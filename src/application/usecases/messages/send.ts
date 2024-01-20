@@ -9,7 +9,11 @@ import { CacheManager } from '@infrastructure/services/cache';
 import services from '@infrastructure/services/api';
 import { ConversationScript, ScriptStep } from './script';
 import { MessageResponse } from './response';
-import { ClientRepository, CategoryRepository } from '@domain/repositories';
+import {
+  ClientRepository,
+  CategoryRepository,
+  ProductRepository,
+} from '@domain/repositories';
 import {
   OrderQuestionResponse,
   TyCQuestionResponse,
@@ -40,6 +44,7 @@ export class SendMessage implements SendMessageUseCase {
   constructor(
     private readonly clientRepository: ClientRepository,
     private readonly categoryRepository: CategoryRepository,
+    private readonly productRepository: ProductRepository,
     private readonly cache: CacheManager = new CacheManager(),
     private readonly responses = new MessageResponse(),
     private readonly script = new ConversationScript(),
@@ -116,16 +121,18 @@ export class SendMessage implements SendMessageUseCase {
               return result;
             } else {
               const categories = await this.categoryRepository.all();
-              let categoriesMessage = 'Por favor selecciona una categoría\n\n';
+              let categoriesMessage =
+                'Por favor selecciona una categoría\n(Escriba la letra)\n\n';
               categories?.map((category, index) => {
-                categoriesMessage += `${String.fromCharCode(
-                  64 + index + 1,
-                )}) *${category.title}*\n`;
+                categoriesMessage += `${String.fromCharCode(65 + index)}) *${
+                  category.title
+                }*\n`;
               });
               const message = categoriesQuestion(
                 messageDTO.destination,
                 categoriesMessage,
               );
+              await this.setStep(ScriptStep.CATEGORY, messageDTO);
               const result = await services.send(message!);
               return result;
             }
@@ -150,7 +157,7 @@ export class SendMessage implements SendMessageUseCase {
               );
               return result;
             } else {
-              //greetins client
+              //greetings client
             }
           }
         }
@@ -164,7 +171,13 @@ export class SendMessage implements SendMessageUseCase {
         );
         const { documentId } = client!;
         if (response === documentId?.toString().slice(-4)) {
-          //greetins client
+          //greetings client
+          const message = clientConfirmationQuestion(
+            messageDTO!.destination,
+            `Hola ${client?.fullname} nos encanta que estes de vuelta`,
+          );
+          const result = await services.send(message!);
+          return result;
         } else {
           //reject client
         }
@@ -215,7 +228,7 @@ export class SendMessage implements SendMessageUseCase {
           messageDTO!.destination,
           textMessage,
         );
-        await this.setStep(ScriptStep.CONFIRM_CLIENT_DATA, messageDTO);
+        await await (ScriptStep.CONFIRM_CLIENT_DATA, messageDTO);
         const result = await services.send(message!);
         return result;
       }
@@ -239,6 +252,33 @@ export class SendMessage implements SendMessageUseCase {
           return result;
         }
         return null;
+      }
+      if ((currentStep as ScriptStep) === ScriptStep.CATEGORY) {
+        if (response.length !== 1) {
+          return null;
+        }
+        const index = response.charCodeAt(0) - 64;
+        const categories = await this.categoryRepository.all();
+        if (index > categories!.length) {
+          return null;
+        }
+        const category = categories![index - 1];
+        const products = await this.productRepository.findByCategoryId(
+          category.id!,
+        );
+        let productMessage =
+          'Por favor selecciona un producto\n(Escriba la letra)\n\n';
+        products?.map((product, index) => {
+          productMessage += `${String.fromCharCode(65 + index)}) *${
+            product.name
+          }*\n`;
+        });
+        const message = categoriesQuestion(
+          messageDTO.destination,
+          productMessage,
+        );
+        const result = await services.send(message!);
+        return result;
       }
       return null;
     } else {

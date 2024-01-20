@@ -1,16 +1,18 @@
 import { ProductDataSource } from '@domain/datasources';
 import { ProductDTO } from '@domain/dtos';
 import { ProductEntity } from '@domain/entities';
+import { CustomHTTPError } from '@domain/errors/custom';
+import { CategoryModel } from '@infrastructure/data/models/category.model';
 import { ProductModel } from '@infrastructure/data/models/product.model';
 import { postgreSQLDatabase } from '@infrastructure/data/postgreSQL';
 
 export class ProductDataSourceImpl implements ProductDataSource {
   findByCategoryId = async (id: string): Promise<ProductEntity[] | null> => {
     try {
-      const databaseRepository =
+      const productRepository =
         postgreSQLDatabase.datasource.getRepository(ProductModel);
-      const products = await databaseRepository.find({
-        where: { category: id },
+      const products = await productRepository.find({
+        where: { categoryId: id },
       });
       return products;
     } catch (error) {
@@ -22,15 +24,24 @@ export class ProductDataSourceImpl implements ProductDataSource {
   };
   create = async (productDTO: ProductDTO): Promise<ProductEntity | null> => {
     try {
-      const databaseRepository =
+      const productRepository =
         postgreSQLDatabase.datasource.getRepository(ProductModel);
+      const categoryRepository =
+        postgreSQLDatabase.datasource.getRepository(CategoryModel);
+
+      const category = await categoryRepository.findOne({
+        where: { id: productDTO.categoryId },
+      });
+      if (!category) {
+        throw CustomHTTPError.badRequest('Cannot create product');
+      }
       const newProduct = new ProductModel();
       newProduct.name = productDTO.name;
       newProduct.price = productDTO.price;
       newProduct.description = productDTO.description;
-      newProduct.category = productDTO.category!;
+      newProduct.categoryId = productDTO.categoryId;
 
-      const product = await databaseRepository.save(newProduct);
+      const product = await productRepository.save(newProduct);
       return product;
     } catch (error) {
       if (error instanceof Error) {
