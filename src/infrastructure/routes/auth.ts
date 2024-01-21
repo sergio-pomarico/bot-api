@@ -1,17 +1,12 @@
 import { Router } from 'express';
 import { AuthController } from '../controllers/auth';
 import { AuthRepositoryImpl } from '../implementations/repositories/auth';
-import { AuthDataSourceImpl } from '../implementations/datasources/auth';
 import { CreateUser, LoginUser } from '@application/usecases/user';
-import { AuthDataSource } from '@domain/datasources';
 import { AuthRepository } from '@domain/repositories';
 
 export class AuthRoutes {
-  constructor(
-    public readonly router = Router(),
-    private readonly datasource: AuthDataSource = new AuthDataSourceImpl(),
-  ) {
-    this.repository = new AuthRepositoryImpl(this.datasource);
+  constructor(public readonly router = Router()) {
+    this.repository = new AuthRepositoryImpl();
     this.createUserUsecases = new CreateUser(this.repository);
     this.loginUsecases = new LoginUser(this.repository);
     this.controller = new AuthController(
