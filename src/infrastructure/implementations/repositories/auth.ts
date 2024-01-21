@@ -2,7 +2,7 @@ import { LoginUserDTO, RegisterUserDTO } from '@domain/dtos';
 import { UserEntity } from '@domain/entities';
 import { CustomHTTPError } from '@domain/errors/custom';
 import { AuthRepository } from '@domain/repositories/auth';
-import { UserModel } from '@infrastructure/data/models/user.model';
+import { UserModel } from '@infrastructure/data/models';
 import { postgreSQLDatabase } from '@infrastructure/data/postgreSQL';
 import { EncryptAdapter } from '@shared/utils';
 

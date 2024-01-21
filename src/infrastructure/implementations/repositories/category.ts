@@ -1,7 +1,7 @@
 import { CategoryDTO } from '@domain/dtos';
 import { CategoryEntity } from '@domain/entities';
 import { CategoryRepository } from '@domain/repositories';
-import { CategoryModel } from '@infrastructure/data/models/category.model';
+import { CategoryModel } from '@infrastructure/data/models';
 import { postgreSQLDatabase } from '@infrastructure/data/postgreSQL';
 
 export class CategoryRepositoryImpl implements CategoryRepository {

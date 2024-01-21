@@ -2,8 +2,7 @@ import { ProductDTO } from '@domain/dtos';
 import { ProductEntity } from '@domain/entities';
 import { CustomHTTPError } from '@domain/errors/custom';
 import { ProductRepository } from '@domain/repositories';
-import { CategoryModel } from '@infrastructure/data/models/category.model';
-import { ProductModel } from '@infrastructure/data/models/product.model';
+import { CategoryModel, ProductModel } from '@infrastructure/data/models';
 import { postgreSQLDatabase } from '@infrastructure/data/postgreSQL';
 
 export class ProductRepositoryImpl implements ProductRepository {

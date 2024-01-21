@@ -1,9 +1,9 @@
 import { UserEntity } from '@domain/entities';
 import { Entity, Column } from 'typeorm';
-import { BaseModel } from './base.model';
+import BaseModel from './base.model';
 
 @Entity({ name: 'user' })
-export class UserModel extends BaseModel implements UserEntity {
+export default class UserModel extends BaseModel implements UserEntity {
   @Column({ unique: true })
   email: string;
 

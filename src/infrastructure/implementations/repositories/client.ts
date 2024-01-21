@@ -2,7 +2,7 @@ import { ClientDTO } from '@domain/dtos';
 import { ClientEntity } from '@domain/entities';
 import { CustomHTTPError } from '@domain/errors/custom';
 import { ClientRepository } from '@domain/repositories';
-import { ClientModel } from '@infrastructure/data/models/client.model';
+import { ClientModel } from '@infrastructure/data/models';
 import { postgreSQLDatabase } from '@infrastructure/data/postgreSQL';
 
 export class ClientRepositoryImpl implements ClientRepository {

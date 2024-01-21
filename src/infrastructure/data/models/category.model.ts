@@ -1,10 +1,10 @@
 import { CategoryEntity } from '@domain/entities';
 import { Column, Entity, OneToMany } from 'typeorm';
-import { ProductModel } from './product.model';
-import { BaseModel } from './base.model';
+import ProductModel from './product.model';
+import BaseModel from './base.model';
 
 @Entity({ name: 'category' })
-export class CategoryModel extends BaseModel implements CategoryEntity {
+export default class CategoryModel extends BaseModel implements CategoryEntity {
   @Column()
   title: string;
 

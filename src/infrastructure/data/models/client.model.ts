@@ -1,9 +1,9 @@
 import { ClientEntity } from '@domain/entities';
 import { Column, Entity } from 'typeorm';
-import { BaseModel } from './base.model';
+import BaseModel from './base.model';
 
 @Entity({ name: 'client' })
-export class ClientModel extends BaseModel implements ClientEntity {
+export default class ClientModel extends BaseModel implements ClientEntity {
   @Column()
   fullname: string;
 
