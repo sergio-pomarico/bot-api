@@ -18,6 +18,7 @@ import {
   OrderQuestionResponse,
   TyCQuestionResponse,
   categoriesQuestion,
+  checkLastestOrdersQuestion,
   clientConfirmationQuestion,
 } from './questions';
 import { ClientQuestionResponse } from './questions/client';
@@ -172,10 +173,11 @@ export class SendMessage implements SendMessageUseCase {
         const { documentId } = client!;
         if (response === documentId?.toString().slice(-4)) {
           //greetings client
-          const message = clientConfirmationQuestion(
+          const message = checkLastestOrdersQuestion(
             messageDTO!.destination,
-            `Hola ${client?.fullname} nos encanta que estes de vuelta`,
+            `Hola ${client?.fullname} nos encanta que estes de vuelta\n\n¿Deseas ordenar lo mismo que la última vez?`,
           );
+          await this.setStep(ScriptStep.CHECK_LASTES_ORDERS, messageDTO);
           const result = await services.send(message!);
           return result;
         } else {

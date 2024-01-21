@@ -5,6 +5,11 @@ export enum OrderQuestionResponse {
   MAKE_A_ORDER = 'MAKE_A_ORDER',
 }
 
+export enum LastestOrdersQuestionResponse {
+  CHECK_LASTES_ORDERS = 'CHECK_LASTES_ORDERS',
+  MAKE_A_NEW_ORDER = 'MAKE_A_NEW_ORDER',
+}
+
 export const makeOrderQuestion = (destination: string, name?: string) =>
   builder.buildReplyButtonsMessage(
     destination,
@@ -43,3 +48,25 @@ export const makeOnlyOrderQuestion = (destination: string) =>
       },
     ],
   );
+
+export const checkLastestOrdersQuestion = (
+  destination: string,
+  body: string,
+) => {
+  return builder.buildReplyButtonsMessage(destination, body, [
+    {
+      type: 'reply',
+      reply: {
+        id: LastestOrdersQuestionResponse.CHECK_LASTES_ORDERS,
+        title: 'Repetir pedido 🔄',
+      },
+    },
+    {
+      type: 'reply',
+      reply: {
+        id: LastestOrdersQuestionResponse.MAKE_A_NEW_ORDER,
+        title: 'Nuevo pedido 🗣️',
+      },
+    },
+  ]);
+};
