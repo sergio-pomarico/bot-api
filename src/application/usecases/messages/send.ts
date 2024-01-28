@@ -22,6 +22,7 @@ import {
   clientConfirmationQuestion,
 } from './questions';
 import { ClientQuestionResponse } from './questions/client';
+import { LastestOrdersQuestionResponse } from './questions/order';
 
 export interface SendMessageUseCase {
   run: (
@@ -31,6 +32,7 @@ export interface SendMessageUseCase {
 
 export interface ConversationStep {
   step: ScriptStep;
+  currentCategory?: string;
   client: ClientEntity | undefined;
   order: OrderEntity | undefined;
 }
@@ -39,6 +41,7 @@ const inistialAnswers: ConversationStep = {
   step: ScriptStep.INITIAL,
   client: undefined,
   order: undefined,
+  currentCategory: undefined,
 };
 
 export class SendMessage implements SendMessageUseCase {
@@ -55,6 +58,11 @@ export class SendMessage implements SendMessageUseCase {
 
   setStep = async (step: ScriptStep, messageDTO: WhatsAppMessageDTO) => {
     this.steps.step = step;
+    await this.cache.set(messageDTO!.destination, this.steps);
+  };
+
+  setCategory = async (category: string, messageDTO: WhatsAppMessageDTO) => {
+    this.steps.currentCategory = category;
     await this.cache.set(messageDTO!.destination, this.steps);
   };
 
@@ -184,6 +192,29 @@ export class SendMessage implements SendMessageUseCase {
           //reject client
         }
       }
+      if ((currentStep as ScriptStep) === ScriptStep.CHECK_LASTES_ORDERS) {
+        if (response === LastestOrdersQuestionResponse.MAKE_A_NEW_ORDER) {
+          const categories = await this.categoryRepository.all();
+          let categoriesMessage =
+            'Por favor selecciona una categoría\n(Escriba la letra)\n\n';
+          categories?.map((category, index) => {
+            categoriesMessage += `${String.fromCharCode(65 + index)}) *${
+              category.title
+            }*\n`;
+          });
+          const message = categoriesQuestion(
+            messageDTO.destination,
+            categoriesMessage,
+          );
+          await this.setStep(ScriptStep.CATEGORY, messageDTO);
+          const result = await services.send(message!);
+          return result;
+        } else if (
+          response === LastestOrdersQuestionResponse.CHECK_LASTES_ORDERS
+        ) {
+          // check lastest orders
+        }
+      }
       if ((currentStep as ScriptStep) === ScriptStep.TYC) {
         if (response === TyCQuestionResponse.ACCEPT_TYC) {
           const result = await this.sendMessage(
@@ -265,6 +296,7 @@ export class SendMessage implements SendMessageUseCase {
           return null;
         }
         const category = categories![index - 1];
+        await this.setCategory(category.id!, messageDTO);
         const products = await this.productRepository.findByCategoryId(
           category.id!,
         );
@@ -279,8 +311,21 @@ export class SendMessage implements SendMessageUseCase {
           messageDTO.destination,
           productMessage,
         );
+        await this.setStep(ScriptStep.PRODUCT, messageDTO);
         const result = await services.send(message!);
         return result;
+      }
+      if ((currentStep as ScriptStep) === ScriptStep.PRODUCT) {
+        if (response.length !== 1) {
+          return null;
+        }
+        const categoryId = this.steps.currentCategory;
+        const products = await this.productRepository.findByCategoryId(
+          categoryId!,
+        );
+        const index = response.charCodeAt(0) - 64;
+        const product = products![index - 1];
+        console.log(product);
       }
       return null;
     } else {
