@@ -2,7 +2,7 @@ import { GetAllCategoriesUseCase } from '@application/usecases/category/all';
 import { CreateCategory } from '@application/usecases/category/create';
 import { CategoryRepository } from '@domain/repositories';
 import { CategoryController } from '@infrastructure/controllers/category';
-import { CategoryRepositoryImpl } from '@infrastructure/implementations/repositories/category';
+import { CategoryRepositoryImpl } from '@infrastructure/implementations/repositories';
 import { Router } from 'express';
 
 export class CategoryRoutes {

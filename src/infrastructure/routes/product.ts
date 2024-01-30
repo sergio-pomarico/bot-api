@@ -4,7 +4,7 @@ import {
 } from '@application/usecases/product/create';
 import { ProductRepository } from '@domain/repositories';
 import { ProductController } from '@infrastructure/controllers/product';
-import { ProductRepositoryImpl } from '@infrastructure/implementations/repositories/product';
+import { ProductRepositoryImpl } from '@infrastructure/implementations/repositories';
 import { Router } from 'express';
 
 export class ProductRoutes {

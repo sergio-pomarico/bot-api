@@ -5,23 +5,29 @@ import {
 import {
   CategoryRepository,
   ClientRepository,
+  ProductAttributeRepository,
   ProductRepository,
 } from '@domain/repositories';
 import { WhatsAppController } from '@infrastructure/controllers/whatsapp';
-import { ClientRepositoryImpl } from '@infrastructure/implementations/repositories/client';
-import { CategoryRepositoryImpl } from '@infrastructure/implementations/repositories/category';
+import {
+  ClientRepositoryImpl,
+  CategoryRepositoryImpl,
+  ProductRepositoryImpl,
+  ProductAttributeRepositoryImpl,
+} from '@infrastructure/implementations/repositories';
 import { Router } from 'express';
-import { ProductRepositoryImpl } from '@infrastructure/implementations/repositories/product';
 
 export class WebHookRoutes {
   constructor(public readonly router = Router()) {
     this.clientRepository = new ClientRepositoryImpl();
     this.categoryRepository = new CategoryRepositoryImpl();
     this.productRepository = new ProductRepositoryImpl();
+    this.productAttributeRepository = new ProductAttributeRepositoryImpl();
     this.sendMessageUsecase = new SendMessage(
       this.clientRepository,
       this.categoryRepository,
       this.productRepository,
+      this.productAttributeRepository,
     );
     this.controller = new WhatsAppController(this.sendMessageUsecase);
     this.routes();
@@ -29,6 +35,7 @@ export class WebHookRoutes {
 
   private readonly clientRepository: ClientRepository;
   private readonly categoryRepository: CategoryRepository;
+  private readonly productAttributeRepository: ProductAttributeRepository;
   private readonly productRepository: ProductRepository;
   private readonly sendMessageUsecase: SendMessageUseCase;
 

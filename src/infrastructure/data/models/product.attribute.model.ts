@@ -1,17 +1,14 @@
 import { Column, Entity, JoinColumn, OneToMany } from 'typeorm';
+import { ProductAttributeEntity, Size } from '@domain/entities';
 
 import BaseModel from './base.model';
 import ProductModel from './product.model';
 
-enum Size {
-  Small = 'small',
-  Personal = 'personal',
-  Medium = 'medium',
-  large = 'large',
-}
-
 @Entity({ name: 'attribute' })
-export default class AttributeModel extends BaseModel {
+export default class ProductAttributeModel
+  extends BaseModel
+  implements ProductAttributeEntity
+{
   @Column()
   title: string;
 

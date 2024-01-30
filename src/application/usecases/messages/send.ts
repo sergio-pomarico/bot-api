@@ -13,6 +13,7 @@ import {
   ClientRepository,
   CategoryRepository,
   ProductRepository,
+  ProductAttributeRepository,
 } from '@domain/repositories';
 import {
   OrderQuestionResponse,
@@ -49,6 +50,7 @@ export class SendMessage implements SendMessageUseCase {
     private readonly clientRepository: ClientRepository,
     private readonly categoryRepository: CategoryRepository,
     private readonly productRepository: ProductRepository,
+    private readonly productAttributeRepository: ProductAttributeRepository,
     private readonly cache: CacheManager = new CacheManager(),
     private readonly responses = new MessageResponse(),
     private readonly script = new ConversationScript(),
@@ -325,7 +327,23 @@ export class SendMessage implements SendMessageUseCase {
         );
         const index = response.charCodeAt(0) - 64;
         const product = products![index - 1];
-        console.log(product);
+        const attributes =
+          await this.productAttributeRepository.findAttributesByProductId(
+            product.id,
+          );
+        let attributesMessage =
+          'Por favor selecciona un tamaño\n(Escriba la letra)\n\n';
+        attributes?.map((attribute, index) => {
+          attributesMessage += `${String.fromCharCode(65 + index)}) *${
+            attribute.title
+          }*\n`;
+        });
+        const message = categoriesQuestion(
+          messageDTO.destination,
+          attributesMessage,
+        );
+        const result = await services.send(message!);
+        return result;
       }
       return null;
     } else {

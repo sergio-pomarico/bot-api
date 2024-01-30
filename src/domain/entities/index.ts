@@ -2,6 +2,7 @@ import UserEntity from './user';
 import ClientEntity from './client';
 import CategoryEntity from './category';
 import { ProductEntity } from './product';
+import { Size, ProductAttributeEntity } from './attribute';
 import OrderEntity, { OrderType } from './order';
 import {
   WhatsAppMessageResult,
@@ -21,4 +22,6 @@ export {
   OrderType,
   CategoryEntity,
   ProductEntity,
+  Size,
+  ProductAttributeEntity,
 };
