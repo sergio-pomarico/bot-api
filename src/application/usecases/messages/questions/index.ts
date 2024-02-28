@@ -1,8 +1,12 @@
 import {
   OrderQuestionResponse,
+  AddProductToOrderQuestionResponse,
+  FinishOrderQuestionResponse,
   makeOrderQuestion,
   makeOnlyOrderQuestion,
   checkLastestOrdersQuestion,
+  addProductToOrderQuestion,
+  finishOrderQuestion,
 } from './order';
 import { TyCQuestionResponse, tycQuestion, rejectTYCQuestion } from './tyc';
 import {
@@ -12,7 +16,11 @@ import {
   clientConfirmationQuestion,
   clientVerifyNationalIDQuestion,
 } from './client';
-import { categoriesQuestion } from './products';
+import {
+  categoriesQuestion,
+  productsQuestion,
+  attributesQuestion,
+} from './products';
 
 export {
   makeOrderQuestion,
@@ -28,4 +36,10 @@ export {
   clientConfirmationQuestion,
   clientVerifyNationalIDQuestion,
   categoriesQuestion,
+  productsQuestion,
+  attributesQuestion,
+  addProductToOrderQuestion,
+  AddProductToOrderQuestionResponse,
+  FinishOrderQuestionResponse,
+  finishOrderQuestion,
 };

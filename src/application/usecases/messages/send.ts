@@ -21,6 +21,9 @@ import {
   categoriesQuestion,
   checkLastestOrdersQuestion,
   clientConfirmationQuestion,
+  AddProductToOrderQuestionResponse,
+  productsQuestion,
+  attributesQuestion,
 } from './questions';
 import { ClientQuestionResponse } from './questions/client';
 import { LastestOrdersQuestionResponse } from './questions/order';
@@ -131,19 +134,10 @@ export class SendMessage implements SendMessageUseCase {
               );
               return result;
             } else {
-              const categories = await this.categoryRepository.all();
-              let categoriesMessage =
-                'Por favor selecciona una categoría\n(Escriba la letra)\n\n';
-              categories?.map((category, index) => {
-                categoriesMessage += `${String.fromCharCode(65 + index)}) *${
-                  category.title
-                }*\n`;
-              });
-              const message = categoriesQuestion(
-                messageDTO.destination,
-                categoriesMessage,
+              const message = await categoriesQuestion(
+                messageDTO,
+                this.categoryRepository,
               );
-              await this.setStep(ScriptStep.CATEGORY, messageDTO);
               const result = await services.send(message!);
               return result;
             }
@@ -196,19 +190,10 @@ export class SendMessage implements SendMessageUseCase {
       }
       if ((currentStep as ScriptStep) === ScriptStep.CHECK_LASTES_ORDERS) {
         if (response === LastestOrdersQuestionResponse.MAKE_A_NEW_ORDER) {
-          const categories = await this.categoryRepository.all();
-          let categoriesMessage =
-            'Por favor selecciona una categoría\n(Escriba la letra)\n\n';
-          categories?.map((category, index) => {
-            categoriesMessage += `${String.fromCharCode(65 + index)}) *${
-              category.title
-            }*\n`;
-          });
-          const message = categoriesQuestion(
-            messageDTO.destination,
-            categoriesMessage,
+          const message = await categoriesQuestion(
+            messageDTO,
+            this.categoryRepository,
           );
-          await this.setStep(ScriptStep.CATEGORY, messageDTO);
           const result = await services.send(message!);
           return result;
         } else if (
@@ -294,27 +279,19 @@ export class SendMessage implements SendMessageUseCase {
         }
         const index = response.charCodeAt(0) - 64;
         const categories = await this.categoryRepository.all();
+        const category = categories![index - 1];
         if (index > categories!.length) {
           return null;
         }
-        const category = categories![index - 1];
         await this.setCategory(category.id!, messageDTO);
-        const products = await this.productRepository.findByCategoryId(
-          category.id!,
+        const message = await productsQuestion(
+          messageDTO,
+          index,
+          categories!,
+          this.productRepository,
         );
-        let productMessage =
-          'Por favor selecciona un producto\n(Escriba la letra)\n\n';
-        products?.map((product, index) => {
-          productMessage += `${String.fromCharCode(65 + index)}) *${
-            product.name
-          }*\n`;
-        });
-        const message = categoriesQuestion(
-          messageDTO.destination,
-          productMessage,
-        );
-        await this.setStep(ScriptStep.PRODUCT, messageDTO);
         const result = await services.send(message!);
+        await this.setStep(ScriptStep.PRODUCT, messageDTO);
         return result;
       }
       if ((currentStep as ScriptStep) === ScriptStep.PRODUCT) {
@@ -331,19 +308,47 @@ export class SendMessage implements SendMessageUseCase {
           await this.productAttributeRepository.findAttributesByProductId(
             product.id,
           );
-        let attributesMessage =
-          'Por favor selecciona un tamaño\n(Escriba la letra)\n\n';
-        attributes?.map((attribute, index) => {
-          attributesMessage += `${String.fromCharCode(65 + index)}) *${
-            attribute.title
-          }*\n`;
-        });
-        const message = categoriesQuestion(
-          messageDTO.destination,
-          attributesMessage,
+        if (attributes !== null) {
+          const message = await attributesQuestion(messageDTO, attributes);
+          const result = await services.send(message!);
+          await this.setStep(ScriptStep.ATTRIBUTE, messageDTO);
+          return result;
+        } else {
+          const result = await this.sendMessage(
+            ScriptStep.ADD_PRODUCT,
+            messageDTO,
+          );
+          return result;
+        }
+      }
+      if ((currentStep as ScriptStep) === ScriptStep.ATTRIBUTE) {
+        if (response.length !== 1) {
+          return null;
+        }
+        const result = await this.sendMessage(
+          ScriptStep.ADD_PRODUCT,
+          messageDTO,
         );
-        const result = await services.send(message!);
         return result;
+      }
+      if ((currentStep as ScriptStep) === ScriptStep.ADD_PRODUCT) {
+        if (response === AddProductToOrderQuestionResponse.ADD_PRODUCT) {
+          const result = await this.sendMessage(
+            ScriptStep.FINISH_ORDER,
+            messageDTO,
+          );
+          return result;
+        } else if (
+          response === AddProductToOrderQuestionResponse.GO_BACK_TO_MENU
+        ) {
+          const message = await categoriesQuestion(
+            messageDTO,
+            this.categoryRepository,
+          );
+          const result = await services.send(message!);
+          await this.setStep(ScriptStep.CATEGORY, messageDTO);
+          return result;
+        }
       }
       return null;
     } else {

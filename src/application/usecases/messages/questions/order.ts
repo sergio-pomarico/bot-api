@@ -10,6 +10,16 @@ export enum LastestOrdersQuestionResponse {
   MAKE_A_NEW_ORDER = 'MAKE_A_NEW_ORDER',
 }
 
+export enum AddProductToOrderQuestionResponse {
+  ADD_PRODUCT = 'ADD_PRODUCT',
+  GO_BACK_TO_MENU = 'GO_BACK_TO_MENU',
+}
+
+export enum FinishOrderQuestionResponse {
+  FINISH = 'FINISH',
+  ADD_MORE_PRODUCTS = 'ADD_MORE_PRODUCTS',
+}
+
 export const makeOrderQuestion = (destination: string, name?: string) =>
   builder.buildReplyButtonsMessage(
     destination,
@@ -70,3 +80,47 @@ export const checkLastestOrdersQuestion = (
     },
   ]);
 };
+
+export const addProductToOrderQuestion = (destination: string) =>
+  builder.buildReplyButtonsMessage(
+    destination,
+    '¿Deseas agregar el producto a tu pedido?',
+    [
+      {
+        type: 'reply',
+        reply: {
+          id: AddProductToOrderQuestionResponse.ADD_PRODUCT,
+          title: 'Agregar al pedido 🛒',
+        },
+      },
+      {
+        type: 'reply',
+        reply: {
+          id: AddProductToOrderQuestionResponse.GO_BACK_TO_MENU,
+          title: 'Volver a la carta 📃',
+        },
+      },
+    ],
+  );
+
+export const finishOrderQuestion = (destination: string) =>
+  builder.buildReplyButtonsMessage(
+    destination,
+    '¿Deseas finalizar tu pedido?',
+    [
+      {
+        type: 'reply',
+        reply: {
+          id: FinishOrderQuestionResponse.FINISH,
+          title: 'Finalizar Pedido 🛒',
+        },
+      },
+      {
+        type: 'reply',
+        reply: {
+          id: FinishOrderQuestionResponse.ADD_MORE_PRODUCTS,
+          title: 'Seguir ordenando 📃',
+        },
+      },
+    ],
+  );
