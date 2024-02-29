@@ -4,6 +4,7 @@ export interface ProductEntity {
   price?: number;
   description?: string;
   categoryId?: string;
+  image?: string;
   attributeId?: string;
   createdAt?: Date;
   updatedAt?: Date;

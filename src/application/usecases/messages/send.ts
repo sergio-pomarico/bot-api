@@ -27,6 +27,7 @@ import {
 } from './questions';
 import { ClientQuestionResponse } from './questions/client';
 import { LastestOrdersQuestionResponse } from './questions/order';
+import { OrderProductEntity } from '@domain/entities/order';
 
 export interface SendMessageUseCase {
   run: (
@@ -39,6 +40,7 @@ export interface ConversationStep {
   currentCategory?: string;
   client: ClientEntity | undefined;
   order: OrderEntity | undefined;
+  currentProduct?: { isAttribute: boolean; productId: string } | undefined;
 }
 
 const inistialAnswers: ConversationStep = {
@@ -46,6 +48,7 @@ const inistialAnswers: ConversationStep = {
   client: undefined,
   order: undefined,
   currentCategory: undefined,
+  currentProduct: undefined,
 };
 
 export class SendMessage implements SendMessageUseCase {
@@ -71,16 +74,25 @@ export class SendMessage implements SendMessageUseCase {
     await this.cache.set(messageDTO!.destination, this.steps);
   };
 
+  setProduct = async (
+    product: string,
+    messageDTO: WhatsAppMessageDTO,
+    isAttribute = false,
+  ) => {
+    this.steps.currentProduct = { productId: product, isAttribute };
+    await this.cache.set(messageDTO!.destination, this.steps);
+  };
+
   resetSteps = () => {
     this.steps = inistialAnswers;
   };
 
   updateOrder = async (
     key: string,
-    response: string | number | Date,
+    value: string | number | OrderProductEntity[],
     messageDTO: WhatsAppMessageDTO,
   ) => {
-    this.steps.order = { ...this.steps.order, ...{ [key]: response } };
+    this.steps.order = { ...this.steps.order, ...{ [key]: value } };
     await this.cache.set(messageDTO!.destination, this.steps);
   };
 
@@ -162,7 +174,13 @@ export class SendMessage implements SendMessageUseCase {
               );
               return result;
             } else {
-              //greetings client
+              const message = checkLastestOrdersQuestion(
+                messageDTO!.destination,
+                `Hola ${client?.fullname} nos encanta que estes de vuelta\n\n¿Deseas ordenar lo mismo que la última vez?`,
+              );
+              await this.setStep(ScriptStep.CHECK_LASTES_ORDERS, messageDTO);
+              const result = await services.send(message!);
+              return result;
             }
           }
         }
@@ -194,6 +212,7 @@ export class SendMessage implements SendMessageUseCase {
             messageDTO,
             this.categoryRepository,
           );
+          await this.setStep(ScriptStep.CATEGORY, messageDTO);
           const result = await services.send(message!);
           return result;
         } else if (
@@ -279,11 +298,15 @@ export class SendMessage implements SendMessageUseCase {
         }
         const index = response.charCodeAt(0) - 64;
         const categories = await this.categoryRepository.all();
+        const client = await this.clientRepository.find(
+          messageDTO!.destination,
+        );
         const category = categories![index - 1];
         if (index > categories!.length) {
           return null;
         }
         await this.setCategory(category.id!, messageDTO);
+        await this.updateOrder('clientId', client!.id!, messageDTO);
         const message = await productsQuestion(
           messageDTO,
           index,
@@ -308,12 +331,14 @@ export class SendMessage implements SendMessageUseCase {
           await this.productAttributeRepository.findAttributesByProductId(
             product.id,
           );
-        if (attributes !== null) {
+        if (attributes !== null && attributes.length > 0) {
+          await this.setProduct(product.id!, messageDTO, true);
           const message = await attributesQuestion(messageDTO, attributes);
           const result = await services.send(message!);
           await this.setStep(ScriptStep.ATTRIBUTE, messageDTO);
           return result;
         } else {
+          await this.setProduct(product.id!, messageDTO);
           const result = await this.sendMessage(
             ScriptStep.ADD_PRODUCT,
             messageDTO,
@@ -333,6 +358,41 @@ export class SendMessage implements SendMessageUseCase {
       }
       if ((currentStep as ScriptStep) === ScriptStep.ADD_PRODUCT) {
         if (response === AddProductToOrderQuestionResponse.ADD_PRODUCT) {
+          const product = this.steps.currentProduct;
+          if (product!.isAttribute ?? false) {
+            const productId = product!.productId;
+            const attributes =
+              await this.productAttributeRepository.findAttributesByProductId(
+                productId,
+              );
+            const index = response.charCodeAt(0) - 64;
+            const attribute = attributes![index - 1];
+            this.updateOrder(
+              'products',
+              [
+                ...(this.steps.order?.products ?? []),
+                {
+                  quantity: 1,
+                  productId: attribute!.id!,
+                  isAttribute: true,
+                },
+              ],
+              messageDTO,
+            );
+          } else {
+            this.updateOrder(
+              'products',
+              [
+                ...(this.steps.order?.products ?? []),
+                {
+                  quantity: 1,
+                  productId: product!.productId!,
+                  isAttribute: false,
+                },
+              ],
+              messageDTO,
+            );
+          }
           const result = await this.sendMessage(
             ScriptStep.FINISH_ORDER,
             messageDTO,

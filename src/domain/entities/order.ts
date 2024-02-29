@@ -3,6 +3,13 @@ export default interface OrderEntity {
   restaurantId?: string;
   clientId?: string;
   type?: OrderType;
+  products?: OrderProductEntity[];
+}
+
+export interface OrderProductEntity {
+  productId: string;
+  quantity: number;
+  isAttribute: boolean;
 }
 
 export enum OrderType {
