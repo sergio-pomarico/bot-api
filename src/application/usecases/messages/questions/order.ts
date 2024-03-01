@@ -1,3 +1,9 @@
+import { WhatsAppMessageDTO } from '@domain/dtos';
+import { OrderProductEntity } from '@domain/entities/order';
+import {
+  ProductAttributeRepository,
+  ProductRepository,
+} from '@domain/repositories';
 import builder from './builder';
 
 export enum OrderQuestionResponse {
@@ -17,6 +23,11 @@ export enum AddProductToOrderQuestionResponse {
 
 export enum FinishOrderQuestionResponse {
   FINISH = 'FINISH',
+  ADD_MORE_PRODUCTS = 'ADD_MORE_PRODUCTS',
+}
+
+export enum ConfirmOrderResponse {
+  CONFIRM_ORDER = 'CONFIRM_ORDER',
   ADD_MORE_PRODUCTS = 'ADD_MORE_PRODUCTS',
 }
 
@@ -124,3 +135,44 @@ export const finishOrderQuestion = (destination: string) =>
       },
     ],
   );
+
+export const resumeOrderQuestion = async (
+  messageDTO: WhatsAppMessageDTO,
+  products: OrderProductEntity[],
+  productAttributeRepository: ProductAttributeRepository,
+  productRepository: ProductRepository,
+) => {
+  let message = 'Resumen del pedido\n\n';
+  let total = 0;
+  for (const data of products) {
+    if (data.isAttribute) {
+      const attribute = await productAttributeRepository.findById(
+        data.productId,
+      );
+      const product = await productRepository.findById(attribute!.productId!);
+      message += `*${product?.name}*  ${attribute?.title} x ${attribute?.price}\n`;
+      total += attribute!.price!;
+    } else {
+      const product = await productRepository.findById(data.productId);
+      message += `*${product?.name}* x ${product?.price}\n`;
+      total += product!.price!;
+    }
+  }
+  message += `Total: ${total}`;
+  return builder.buildReplyButtonsMessage(messageDTO.destination, message, [
+    {
+      type: 'reply',
+      reply: {
+        id: ConfirmOrderResponse.CONFIRM_ORDER,
+        title: 'confirmar pedido ✅',
+      },
+    },
+    {
+      type: 'reply',
+      reply: {
+        id: ConfirmOrderResponse.ADD_MORE_PRODUCTS,
+        title: 'Seguir ordenando 📃',
+      },
+    },
+  ]);
+};

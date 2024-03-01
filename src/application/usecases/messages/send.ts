@@ -24,9 +24,11 @@ import {
   AddProductToOrderQuestionResponse,
   productsQuestion,
   attributesQuestion,
+  resumeOrderQuestion,
+  LastestOrdersQuestionResponse,
+  FinishOrderQuestionResponse,
+  ClientQuestionResponse,
 } from './questions';
-import { ClientQuestionResponse } from './questions/client';
-import { LastestOrdersQuestionResponse } from './questions/order';
 import { OrderProductEntity } from '@domain/entities/order';
 
 export interface SendMessageUseCase {
@@ -407,6 +409,26 @@ export class SendMessage implements SendMessageUseCase {
           );
           const result = await services.send(message!);
           await this.setStep(ScriptStep.CATEGORY, messageDTO);
+          return result;
+        }
+      }
+      if ((currentStep as ScriptStep) === ScriptStep.FINISH_ORDER) {
+        if (response == FinishOrderQuestionResponse.FINISH) {
+          const message = await resumeOrderQuestion(
+            messageDTO,
+            this.steps.order!.products!,
+            this.productAttributeRepository,
+            this.productRepository,
+          );
+          const result = await services.send(message!);
+          return result;
+        } else if (response == FinishOrderQuestionResponse.ADD_MORE_PRODUCTS) {
+          const message = await categoriesQuestion(
+            messageDTO,
+            this.categoryRepository,
+          );
+          const result = await services.send(message!);
+          await this.setStep(ScriptStep.CONFIRM_ORDER, messageDTO);
           return result;
         }
       }

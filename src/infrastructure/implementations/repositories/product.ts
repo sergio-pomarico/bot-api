@@ -21,6 +21,21 @@ export class ProductRepositoryImpl implements ProductRepository {
       return null;
     }
   };
+  findById = async (id: string): Promise<ProductEntity | null> => {
+    try {
+      const productRepository =
+        postgreSQLDatabase.datasource.getRepository(ProductModel);
+      const products = await productRepository.findOne({
+        where: { id },
+      });
+      return products;
+    } catch (error) {
+      if (error instanceof Error) {
+        throw error;
+      }
+      return null;
+    }
+  };
   create = async (productDTO: ProductDTO): Promise<ProductEntity | null> => {
     try {
       const productRepository =

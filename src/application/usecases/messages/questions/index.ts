@@ -7,6 +7,9 @@ import {
   checkLastestOrdersQuestion,
   addProductToOrderQuestion,
   finishOrderQuestion,
+  resumeOrderQuestion,
+  LastestOrdersQuestionResponse,
+  ConfirmOrderResponse,
 } from './order';
 import { TyCQuestionResponse, tycQuestion, rejectTYCQuestion } from './tyc';
 import {
@@ -15,6 +18,7 @@ import {
   clientNationalIDQuestion,
   clientConfirmationQuestion,
   clientVerifyNationalIDQuestion,
+  ClientQuestionResponse,
 } from './client';
 import {
   categoriesQuestion,
@@ -42,4 +46,8 @@ export {
   AddProductToOrderQuestionResponse,
   FinishOrderQuestionResponse,
   finishOrderQuestion,
+  resumeOrderQuestion,
+  LastestOrdersQuestionResponse,
+  ConfirmOrderResponse,
+  ClientQuestionResponse,
 };

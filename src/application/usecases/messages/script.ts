@@ -29,6 +29,7 @@ export enum ScriptStep {
   ATTRIBUTE = 'ATTRIBUTE',
   ADD_PRODUCT = 'ADD_PRODUCT',
   FINISH_ORDER = 'FINISH_ORDER',
+  CONFIRM_ORDER = 'CONFIRM_ORDER',
 }
 
 export class ConversationScript {

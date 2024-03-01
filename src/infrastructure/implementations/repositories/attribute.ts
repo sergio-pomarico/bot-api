@@ -24,4 +24,20 @@ export class ProductAttributeRepositoryImpl
       return null;
     }
   };
+  findById = async (id: string): Promise<ProductAttributeEntity | null> => {
+    try {
+      const databaseRepository = postgreSQLDatabase.datasource.getRepository(
+        ProductAttributeModel,
+      );
+      const productAttribute = await databaseRepository.findOne({
+        where: { id },
+      });
+      return productAttribute;
+    } catch (error) {
+      if (error instanceof Error) {
+        throw error;
+      }
+      return null;
+    }
+  };
 }
