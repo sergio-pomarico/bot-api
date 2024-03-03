@@ -34,6 +34,7 @@ export enum ScriptStep {
   CONFIRM_ORDER = 'CONFIRM_ORDER',
   ORDER_TYPE = 'ORDER_TYPE',
   PAYMENT_METHOD = 'PAYMENT_METHOD',
+  PLACE = 'PLACE',
 }
 
 export class ConversationScript {

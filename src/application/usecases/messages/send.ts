@@ -29,8 +29,10 @@ import {
   FinishOrderQuestionResponse,
   ClientQuestionResponse,
   ConfirmOrderResponse,
+  placeQuestion,
 } from './questions';
 import { OrderProductEntity, OrderType } from '@domain/entities/order';
+import { RestaurantRepository } from '@domain/repositories/restaurant';
 
 export interface SendMessageUseCase {
   run: (
@@ -59,6 +61,7 @@ export class SendMessage implements SendMessageUseCase {
     private readonly clientRepository: ClientRepository,
     private readonly categoryRepository: CategoryRepository,
     private readonly productRepository: ProductRepository,
+    private readonly restaurantRepository: RestaurantRepository,
     private readonly productAttributeRepository: ProductAttributeRepository,
     private readonly cache: CacheManager = new CacheManager(),
     private readonly responses = new MessageResponse(),
@@ -460,17 +463,34 @@ export class SendMessage implements SendMessageUseCase {
           await this.updateOrder('type', OrderType.HOME_DELIVERY, messageDTO);
           return result;
         } else if (response === OrderType.PICK_UP_AT_RESTAURANT) {
-          const result = await this.sendMessage(
-            ScriptStep.PAYMENT_METHOD,
-            messageDTO,
-          );
+          const restaurants = await this.restaurantRepository.all();
           await this.updateOrder(
             'type',
             OrderType.PICK_UP_AT_RESTAURANT,
             messageDTO,
           );
+          const message = placeQuestion(
+            messageDTO.destination,
+            restaurants ?? [],
+          );
+          const result = await services.send(message);
+          await this.setStep(ScriptStep.PLACE, messageDTO);
           return result;
         }
+      }
+      if ((currentStep as ScriptStep) === ScriptStep.PAYMENT_METHOD) {
+        const restaurants = await this.restaurantRepository.all();
+        const message = placeQuestion(
+          messageDTO.destination,
+          restaurants ?? [],
+        );
+        const result = await services.send(message);
+        await this.setStep(ScriptStep.PLACE, messageDTO);
+        return result;
+      }
+      if ((currentStep as ScriptStep) === ScriptStep.PLACE) {
+        this.updateOrder('restaurantId', response, messageDTO);
+        //Create order
       }
       return null;
     } else {

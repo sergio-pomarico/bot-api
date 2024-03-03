@@ -9,6 +9,7 @@ import {
   ProductRepository,
 } from '@domain/repositories';
 import builder from './builder';
+import { RestaurantEntity } from '@domain/entities';
 
 export enum OrderQuestionResponse {
   REVIEW_THE_MENU = 'REVIEW_THE_MENU',
@@ -224,5 +225,27 @@ export const selectPaymentMethodQuestion = (destination: string) => {
         },
       },
     ],
+  );
+};
+
+export const placeQuestion = (
+  destination: string,
+  restaurants: RestaurantEntity[],
+) => {
+  return builder.buidInteractiveListMessage(
+    destination,
+    'Elegir restaurante',
+    'Elige el restaurante donde deseas recoger tu pedido',
+    restaurants.map((restaurant) => {
+      return {
+        title: restaurant.name,
+        rows: [
+          {
+            id: restaurant.id!,
+            title: restaurant.address,
+          },
+        ],
+      };
+    }),
   );
 };
