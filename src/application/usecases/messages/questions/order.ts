@@ -1,5 +1,9 @@
 import { WhatsAppMessageDTO } from '@domain/dtos';
-import { OrderProductEntity } from '@domain/entities/order';
+import {
+  OrderProductEntity,
+  OrderType,
+  PaymentMethod,
+} from '@domain/entities/order';
 import {
   ProductAttributeRepository,
   ProductRepository,
@@ -164,7 +168,7 @@ export const resumeOrderQuestion = async (
       type: 'reply',
       reply: {
         id: ConfirmOrderResponse.CONFIRM_ORDER,
-        title: 'confirmar pedido ✅',
+        title: 'Confirmar pedido ✅',
       },
     },
     {
@@ -175,4 +179,50 @@ export const resumeOrderQuestion = async (
       },
     },
   ]);
+};
+
+export const selectOrderTypeQuestion = (destination: string) => {
+  return builder.buildReplyButtonsMessage(
+    destination,
+    '¿Cómo deseas recibir tu pedido?',
+    [
+      {
+        type: 'reply',
+        reply: {
+          id: OrderType.HOME_DELIVERY,
+          title: 'Domicilio 🏠',
+        },
+      },
+      {
+        type: 'reply',
+        reply: {
+          id: OrderType.PICK_UP_AT_RESTAURANT,
+          title: 'Recoger en sitio 🏢',
+        },
+      },
+    ],
+  );
+};
+
+export const selectPaymentMethodQuestion = (destination: string) => {
+  return builder.buildReplyButtonsMessage(
+    destination,
+    '¿Cómo deseas pagar tu pedido?',
+    [
+      {
+        type: 'reply',
+        reply: {
+          id: PaymentMethod.CASH,
+          title: 'En efectivo 💵',
+        },
+      },
+      {
+        type: 'reply',
+        reply: {
+          id: PaymentMethod.BANK_TRANSFER,
+          title: 'Por transferencia 💳',
+        },
+      },
+    ],
+  );
 };

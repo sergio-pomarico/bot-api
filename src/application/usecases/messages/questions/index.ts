@@ -10,6 +10,8 @@ import {
   resumeOrderQuestion,
   LastestOrdersQuestionResponse,
   ConfirmOrderResponse,
+  selectOrderTypeQuestion,
+  selectPaymentMethodQuestion,
 } from './order';
 import { TyCQuestionResponse, tycQuestion, rejectTYCQuestion } from './tyc';
 import {
@@ -50,4 +52,6 @@ export {
   LastestOrdersQuestionResponse,
   ConfirmOrderResponse,
   ClientQuestionResponse,
+  selectOrderTypeQuestion,
+  selectPaymentMethodQuestion,
 };

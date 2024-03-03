@@ -10,6 +10,8 @@ import {
   clientVerifyNationalIDQuestion,
   addProductToOrderQuestion,
   finishOrderQuestion,
+  selectOrderTypeQuestion,
+  selectPaymentMethodQuestion,
 } from './questions';
 
 export enum ScriptStep {
@@ -30,6 +32,8 @@ export enum ScriptStep {
   ADD_PRODUCT = 'ADD_PRODUCT',
   FINISH_ORDER = 'FINISH_ORDER',
   CONFIRM_ORDER = 'CONFIRM_ORDER',
+  ORDER_TYPE = 'ORDER_TYPE',
+  PAYMENT_METHOD = 'PAYMENT_METHOD',
 }
 
 export class ConversationScript {
@@ -69,6 +73,12 @@ export class ConversationScript {
         break;
       case ScriptStep.FINISH_ORDER:
         message = finishOrderQuestion(destination);
+        break;
+      case ScriptStep.ORDER_TYPE:
+        message = selectOrderTypeQuestion(destination);
+        break;
+      case ScriptStep.PAYMENT_METHOD:
+        message = selectPaymentMethodQuestion(destination);
         break;
       default:
         break;

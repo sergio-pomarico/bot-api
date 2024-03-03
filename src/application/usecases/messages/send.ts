@@ -28,8 +28,9 @@ import {
   LastestOrdersQuestionResponse,
   FinishOrderQuestionResponse,
   ClientQuestionResponse,
+  ConfirmOrderResponse,
 } from './questions';
-import { OrderProductEntity } from '@domain/entities/order';
+import { OrderProductEntity, OrderType } from '@domain/entities/order';
 
 export interface SendMessageUseCase {
   run: (
@@ -421,6 +422,7 @@ export class SendMessage implements SendMessageUseCase {
             this.productRepository,
           );
           const result = await services.send(message!);
+          await this.setStep(ScriptStep.CONFIRM_ORDER, messageDTO);
           return result;
         } else if (response == FinishOrderQuestionResponse.ADD_MORE_PRODUCTS) {
           const message = await categoriesQuestion(
@@ -428,7 +430,45 @@ export class SendMessage implements SendMessageUseCase {
             this.categoryRepository,
           );
           const result = await services.send(message!);
-          await this.setStep(ScriptStep.CONFIRM_ORDER, messageDTO);
+          await this.setStep(ScriptStep.CATEGORY, messageDTO);
+          return result;
+        }
+      }
+      if ((currentStep as ScriptStep) === ScriptStep.CONFIRM_ORDER) {
+        if (response === ConfirmOrderResponse.CONFIRM_ORDER) {
+          const result = await this.sendMessage(
+            ScriptStep.ORDER_TYPE,
+            messageDTO,
+          );
+          return result;
+        } else if (ConfirmOrderResponse.ADD_MORE_PRODUCTS) {
+          const message = await categoriesQuestion(
+            messageDTO,
+            this.categoryRepository,
+          );
+          const result = await services.send(message!);
+          await this.setStep(ScriptStep.CATEGORY, messageDTO);
+          return result;
+        }
+      }
+      if ((currentStep as ScriptStep) === ScriptStep.ORDER_TYPE) {
+        if (response === OrderType.HOME_DELIVERY) {
+          const result = await this.sendMessage(
+            ScriptStep.PAYMENT_METHOD,
+            messageDTO,
+          );
+          await this.updateOrder('type', OrderType.HOME_DELIVERY, messageDTO);
+          return result;
+        } else if (response === OrderType.PICK_UP_AT_RESTAURANT) {
+          const result = await this.sendMessage(
+            ScriptStep.PAYMENT_METHOD,
+            messageDTO,
+          );
+          await this.updateOrder(
+            'type',
+            OrderType.PICK_UP_AT_RESTAURANT,
+            messageDTO,
+          );
           return result;
         }
       }

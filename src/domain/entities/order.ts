@@ -4,6 +4,7 @@ export default interface OrderEntity {
   clientId?: string;
   type?: OrderType;
   products?: OrderProductEntity[];
+  paymentMethod?: PaymentMethod;
 }
 
 export interface OrderProductEntity {
@@ -17,4 +18,7 @@ export enum OrderType {
   PICK_UP_AT_RESTAURANT = 'PICK_UP_AT_RESTAURANT',
 }
 
-export const REVIEW_THE_MENU = 'REVIEW_THE_MENU';
+export enum PaymentMethod {
+  CASH = 'CASH',
+  BANK_TRANSFER = 'BANK_TRANSFER',
+}
