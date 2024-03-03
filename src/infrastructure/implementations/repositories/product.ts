@@ -53,7 +53,7 @@ export class ProductRepositoryImpl implements ProductRepository {
       newProduct.name = productDTO.name;
       newProduct.price = productDTO.price;
       newProduct.description = productDTO.description;
-      newProduct.categoryId = productDTO.categoryId;
+      newProduct.categoryId = productDTO.categoryId!;
 
       const product = await productRepository.save(newProduct);
       return product;

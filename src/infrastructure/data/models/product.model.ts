@@ -16,7 +16,7 @@ export default class ProductModel extends BaseModel implements ProductEntity {
   price?: number;
 
   @Column({ name: 'category_id' })
-  categoryId?: string;
+  categoryId: string;
 
   @Column({ name: 'attribute_id', nullable: true })
   attributeId?: string;
