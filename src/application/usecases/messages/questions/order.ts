@@ -154,7 +154,7 @@ export const resumeOrderQuestion = async (
       const attribute = await productAttributeRepository.findById(
         data.productId,
       );
-      const product = await productRepository.findById(attribute!.productId!);
+      const product = await productRepository.findById(attribute!.product!.id!);
       message += `*${product?.name}*  ${attribute?.title} x ${attribute?.price}\n`;
       total += attribute!.price!;
     } else {

@@ -11,7 +11,8 @@ export class ProductRepositoryImpl implements ProductRepository {
       const productRepository =
         postgreSQLDatabase.datasource.getRepository(ProductModel);
       const products = await productRepository.find({
-        where: { categoryId: id },
+        where: { category: { id } },
+        relations: ['attributes'],
       });
       return products;
     } catch (error) {
@@ -27,6 +28,7 @@ export class ProductRepositoryImpl implements ProductRepository {
         postgreSQLDatabase.datasource.getRepository(ProductModel);
       const products = await productRepository.findOne({
         where: { id },
+        relations: ['attributes'],
       });
       return products;
     } catch (error) {
@@ -53,7 +55,7 @@ export class ProductRepositoryImpl implements ProductRepository {
       newProduct.name = productDTO.name;
       newProduct.price = productDTO.price;
       newProduct.description = productDTO.description;
-      newProduct.categoryId = productDTO.categoryId!;
+      //newProduct.category = productDTO.categoryId!;
 
       const product = await productRepository.save(newProduct);
       return product;

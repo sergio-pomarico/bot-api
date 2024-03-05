@@ -1,9 +1,11 @@
+import { ProductEntity } from './product';
+
 export interface ProductAttributeEntity {
   id: string;
   title: string;
   description?: string;
   price?: number;
-  productId?: string;
+  product?: ProductEntity;
   size?: Size;
   createdAt?: Date;
   updatedAt?: Date;

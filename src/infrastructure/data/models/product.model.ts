@@ -1,7 +1,7 @@
 import { ProductEntity } from '@domain/entities';
-import { Column, Entity, JoinColumn, ManyToOne } from 'typeorm';
+import { Column, Entity, JoinColumn, ManyToOne, OneToMany } from 'typeorm';
 import BaseModel from './base.model';
-import AttributeModel from './product.attribute.model';
+import AttributeModel from './attribute.model';
 import CategoryModel from './category.model';
 
 @Entity({ name: 'product' })
@@ -15,12 +15,6 @@ export default class ProductModel extends BaseModel implements ProductEntity {
   @Column({ nullable: true })
   price?: number;
 
-  @Column({ name: 'category_id' })
-  categoryId: string;
-
-  @Column({ name: 'attribute_id', nullable: true })
-  attributeId?: string;
-
   @Column({ nullable: true })
   image?: string;
 
@@ -28,7 +22,8 @@ export default class ProductModel extends BaseModel implements ProductEntity {
   @JoinColumn({ name: 'category_id' })
   category: CategoryModel;
 
-  @ManyToOne(() => AttributeModel, (attribute) => attribute.productId)
-  @JoinColumn({ name: 'attribute_id' })
-  attribute: CategoryModel;
+  @OneToMany(() => AttributeModel, (attribute) => attribute.product, {
+    nullable: true,
+  })
+  attributes: AttributeModel[];
 }

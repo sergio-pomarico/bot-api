@@ -333,13 +333,12 @@ export class SendMessage implements SendMessageUseCase {
         );
         const index = response.charCodeAt(0) - 64;
         const product = products![index - 1];
-        const attributes =
-          await this.productAttributeRepository.findAttributesByProductId(
-            product.id,
-          );
-        if (attributes !== null && attributes.length > 0) {
+        if (product.attributes !== null && product.attributes!.length > 0) {
           await this.setProduct(product.id!, messageDTO, true);
-          const message = await attributesQuestion(messageDTO, attributes);
+          const message = await attributesQuestion(
+            messageDTO,
+            product.attributes!,
+          );
           const result = await services.send(message!);
           await this.setStep(ScriptStep.ATTRIBUTE, messageDTO);
           return result;

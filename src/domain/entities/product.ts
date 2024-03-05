@@ -1,3 +1,5 @@
+import { ProductAttributeEntity } from './attribute';
+
 export interface ProductEntity {
   id: string;
   name: string;
@@ -5,7 +7,7 @@ export interface ProductEntity {
   description?: string;
   categoryId?: string;
   image?: string;
-  attributeId?: string;
+  attributes?: ProductAttributeEntity[];
   createdAt?: Date;
   updatedAt?: Date;
 }

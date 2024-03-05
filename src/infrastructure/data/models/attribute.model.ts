@@ -1,4 +1,4 @@
-import { Column, Entity, JoinColumn, OneToMany } from 'typeorm';
+import { Column, Entity, JoinColumn, ManyToOne } from 'typeorm';
 import { ProductAttributeEntity, Size } from '@domain/entities';
 
 import BaseModel from './base.model';
@@ -13,9 +13,6 @@ export default class ProductAttributeModel
   title: string;
 
   @Column()
-  description: string;
-
-  @Column()
   price: number;
 
   @Column({
@@ -24,10 +21,7 @@ export default class ProductAttributeModel
   })
   size: Size;
 
-  @Column({ name: 'product_id' })
-  productId: string;
-
-  @OneToMany(() => ProductModel, (product) => product.id)
+  @ManyToOne(() => ProductModel, (product) => product.attributes)
   @JoinColumn({ name: 'product_id' })
-  product: ProductModel[];
+  product: ProductModel;
 }

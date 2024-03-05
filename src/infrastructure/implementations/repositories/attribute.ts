@@ -7,14 +7,14 @@ export class ProductAttributeRepositoryImpl
   implements ProductAttributeRepository
 {
   findAttributesByProductId = async (
-    productId: string,
+    id: string,
   ): Promise<ProductAttributeEntity[] | null> => {
     try {
       const databaseRepository = postgreSQLDatabase.datasource.getRepository(
         ProductAttributeModel,
       );
       const productAttributes = await databaseRepository.find({
-        where: { productId: productId },
+        where: { product: { id } },
       });
       return productAttributes;
     } catch (error) {
@@ -31,6 +31,7 @@ export class ProductAttributeRepositoryImpl
       );
       const productAttribute = await databaseRepository.findOne({
         where: { id },
+        relations: ['product'],
       });
       return productAttribute;
     } catch (error) {
