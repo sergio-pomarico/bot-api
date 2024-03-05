@@ -30,7 +30,7 @@ export default class ProductAttributeDTO {
       new ProductAttributeDTO(
         (data.title as string)!,
         (data.price as number)!,
-        (data.productId as string)!,
+        (data.product as string)!,
         (data.size as Size)!,
         data.description as string,
       ),
