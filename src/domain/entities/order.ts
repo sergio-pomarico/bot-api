@@ -1,7 +1,10 @@
+import ClientEntity from './client';
+import RestaurantEntity from './restaurant';
+
 export default interface OrderEntity {
   id?: string;
-  restaurantId?: string;
-  clientId?: string;
+  restaurant?: RestaurantEntity;
+  client?: ClientEntity;
   type?: OrderType;
   products?: OrderProductEntity[];
   paymentMethod?: PaymentMethod;

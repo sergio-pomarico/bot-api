@@ -3,7 +3,7 @@ import ClientEntity from './client';
 import CategoryEntity from './category';
 import { ProductEntity } from './product';
 import { Size, ProductAttributeEntity } from './attribute';
-import OrderEntity, { OrderType } from './order';
+import OrderEntity, { OrderType, PaymentMethod } from './order';
 import RestaurantEntity from './restaurant';
 import {
   WhatsAppMessageResult,
@@ -26,4 +26,5 @@ export {
   Size,
   ProductAttributeEntity,
   RestaurantEntity,
+  PaymentMethod,
 };
