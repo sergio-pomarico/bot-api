@@ -4,6 +4,7 @@ import CategoryEntity from './category';
 import { ProductEntity } from './product';
 import { Size, ProductAttributeEntity } from './attribute';
 import OrderEntity, { OrderType, PaymentMethod } from './order';
+import { OrderItemEntity } from './items';
 import RestaurantEntity from './restaurant';
 import {
   WhatsAppMessageResult,
@@ -27,4 +28,5 @@ export {
   ProductAttributeEntity,
   RestaurantEntity,
   PaymentMethod,
+  OrderItemEntity,
 };

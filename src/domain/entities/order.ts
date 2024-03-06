@@ -1,4 +1,5 @@
 import ClientEntity from './client';
+import { OrderItemEntity } from './items';
 import RestaurantEntity from './restaurant';
 
 export default interface OrderEntity {
@@ -6,14 +7,9 @@ export default interface OrderEntity {
   restaurant?: RestaurantEntity;
   client?: ClientEntity;
   type?: OrderType;
-  products?: OrderProductEntity[];
+  comment?: string;
+  items?: OrderItemEntity[];
   paymentMethod?: PaymentMethod;
-}
-
-export interface OrderProductEntity {
-  productId: string;
-  quantity: number;
-  isAttribute: boolean;
 }
 
 export enum OrderType {

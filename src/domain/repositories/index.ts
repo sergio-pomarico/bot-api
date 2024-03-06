@@ -4,6 +4,8 @@ import { CategoryRepository } from './category';
 import { ProductRepository } from './product';
 import { ProductAttributeRepository } from './attribute';
 import { RestaurantRepository } from './restaurant';
+import { OrderRepository } from './order';
+import { OrderItemRepository } from './item';
 
 export {
   AuthRepository,
@@ -12,4 +14,6 @@ export {
   ProductRepository,
   ProductAttributeRepository,
   RestaurantRepository,
+  OrderRepository,
+  OrderItemRepository,
 };
