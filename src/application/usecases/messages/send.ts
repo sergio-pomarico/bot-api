@@ -38,6 +38,7 @@ import {
   ClientQuestionResponse,
   ConfirmOrderResponse,
   placeQuestion,
+  finishProcessQuestion,
 } from './questions';
 import { CacheDialog, ConversationStep, Item } from './cache';
 
@@ -468,6 +469,12 @@ export class SendMessage extends CacheDialog implements SendMessageUseCase {
           const item = await this.itemRepository.create(itemDTO!);
           items.push(item!);
         });
+
+        order!.items = items;
+        this.orderRepository.update(order!.id!, order!);
+        const message = finishProcessQuestion(messageDTO.destination);
+        const result = await services.send(message!);
+        return result;
       }
       return null;
     } else {

@@ -36,10 +36,34 @@ export class OrderRepositoryImpl implements OrderRepository {
       newOrder.client = client;
       newOrder.restaurant = restaurant;
       newOrder.type = orderDTO.type;
-      newOrder.paymentMethod = orderDTO.paymentMethod;
+      if (orderDTO.paymentMethod) {
+        newOrder.paymentMethod = orderDTO.paymentMethod;
+      }
 
       const order = await orderRepository.save(newOrder);
       return order;
+    } catch (error) {
+      if (error instanceof Error) {
+        throw error;
+      }
+      return null;
+    }
+  };
+  update = async (
+    id: string,
+    changes: OrderEntity,
+  ): Promise<OrderEntity | null> => {
+    try {
+      const orderRepository =
+        postgreSQLDatabase.datasource.getRepository(OrderModel);
+      const order = await orderRepository.findOne({ where: { id } });
+      if (order === null)
+        throw CustomHTTPError.badRequest(
+          'Cannot update a order that does not exist',
+        );
+      orderRepository.merge(order, changes);
+      const updatedOrder = await orderRepository.save(order!);
+      return updatedOrder;
     } catch (error) {
       if (error instanceof Error) {
         throw error;

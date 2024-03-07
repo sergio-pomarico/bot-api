@@ -13,6 +13,7 @@ import {
   selectOrderTypeQuestion,
   selectPaymentMethodQuestion,
   placeQuestion,
+  finishProcessQuestion,
 } from './order';
 import { TyCQuestionResponse, tycQuestion, rejectTYCQuestion } from './tyc';
 import {
@@ -56,4 +57,5 @@ export {
   selectOrderTypeQuestion,
   selectPaymentMethodQuestion,
   placeQuestion,
+  finishProcessQuestion,
 };

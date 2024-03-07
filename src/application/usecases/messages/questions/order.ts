@@ -245,3 +245,11 @@ export const placeQuestion = (
     }),
   );
 };
+
+export const finishProcessQuestion = (destination: string) => {
+  return builder.buildTextMessage(
+    destination,
+    '¡Gracias por tu pedido! 🥳\n\nEn breve te contactaremos para confirmar tu pedido.',
+    false,
+  );
+};
