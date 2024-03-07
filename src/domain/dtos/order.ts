@@ -5,7 +5,7 @@ const OrderDTOValidator = z.object({
   clientId: z.string().uuid(),
   restaurantId: z.string().uuid(),
   type: z.nativeEnum(OrderType),
-  paymentMethod: z.nativeEnum(PaymentMethod),
+  paymentMethod: z.nativeEnum(PaymentMethod).optional(),
 });
 
 export type OrderValidator = z.infer<typeof OrderDTOValidator>;

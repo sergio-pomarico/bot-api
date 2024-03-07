@@ -6,5 +6,5 @@ export interface OrderItemEntity {
   attributeId?: string;
   quantity: number;
   price: number;
-  order: OrderEntity;
+  order?: OrderEntity;
 }

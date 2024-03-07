@@ -5,6 +5,8 @@ import {
 import {
   CategoryRepository,
   ClientRepository,
+  OrderItemRepository,
+  OrderRepository,
   ProductAttributeRepository,
   ProductRepository,
   RestaurantRepository,
@@ -16,6 +18,8 @@ import {
   ProductRepositoryImpl,
   ProductAttributeRepositoryImpl,
 } from '@infrastructure/implementations/repositories';
+import { OrderItemRepositoryImpl } from '@infrastructure/implementations/repositories/item';
+import { OrderRepositoryImpl } from '@infrastructure/implementations/repositories/order';
 import { RestaurantRepositoryImpl } from '@infrastructure/implementations/repositories/restaurant';
 import { Router } from 'express';
 
@@ -25,6 +29,8 @@ export class WebHookRoutes {
     this.categoryRepository = new CategoryRepositoryImpl();
     this.productRepository = new ProductRepositoryImpl();
     this.productAttributeRepository = new ProductAttributeRepositoryImpl();
+    this.orderRepository = new OrderRepositoryImpl();
+    this.itemRepository = new OrderItemRepositoryImpl();
     this.restaurantRepository = new RestaurantRepositoryImpl();
     this.sendMessageUsecase = new SendMessage(
       this.clientRepository,
@@ -32,6 +38,8 @@ export class WebHookRoutes {
       this.productRepository,
       this.restaurantRepository,
       this.productAttributeRepository,
+      this.orderRepository,
+      this.itemRepository,
     );
     this.controller = new WhatsAppController(this.sendMessageUsecase);
     this.routes();
@@ -42,6 +50,8 @@ export class WebHookRoutes {
   private readonly productAttributeRepository: ProductAttributeRepository;
   private readonly productRepository: ProductRepository;
   private readonly restaurantRepository: RestaurantRepository;
+  private readonly orderRepository: OrderRepository;
+  private readonly itemRepository: OrderItemRepository;
   private readonly sendMessageUsecase: SendMessageUseCase;
 
   private readonly controller: WhatsAppController;

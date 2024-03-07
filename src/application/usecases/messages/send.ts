@@ -1,11 +1,16 @@
 import { differenceInDays } from 'date-fns';
-import { ClientDTO, WhatsAppMessageDTO } from '@domain/dtos';
 import {
-  ClientEntity,
-  OrderEntity,
+  ClientDTO,
+  OrderDTO,
+  OrderItemDTO,
+  WhatsAppMessageDTO,
+} from '@domain/dtos';
+import {
   WhatsAppMessageResult,
+  OrderType,
+  PaymentMethod,
+  OrderItemEntity,
 } from '@domain/entities';
-import { CacheManager } from '@infrastructure/services/cache';
 import services from '@infrastructure/services/api';
 import { ConversationScript, ScriptStep } from './script';
 import { MessageResponse } from './response';
@@ -14,6 +19,9 @@ import {
   CategoryRepository,
   ProductRepository,
   ProductAttributeRepository,
+  RestaurantRepository,
+  OrderRepository,
+  OrderItemRepository,
 } from '@domain/repositories';
 import {
   OrderQuestionResponse,
@@ -31,8 +39,7 @@ import {
   ConfirmOrderResponse,
   placeQuestion,
 } from './questions';
-import { OrderProductEntity, OrderType } from '@domain/entities/order';
-import { RestaurantRepository } from '@domain/repositories/restaurant';
+import { CacheDialog, ConversationStep, Item } from './cache';
 
 export interface SendMessageUseCase {
   run: (
@@ -40,76 +47,20 @@ export interface SendMessageUseCase {
   ) => Promise<WhatsAppMessageResult | null>;
 }
 
-export interface ConversationStep {
-  step: ScriptStep;
-  currentCategory?: string;
-  client: ClientEntity | undefined;
-  order: OrderEntity | undefined;
-  currentProduct?: { isAttribute: boolean; productId: string } | undefined;
-}
-
-const inistialAnswers: ConversationStep = {
-  step: ScriptStep.INITIAL,
-  client: undefined,
-  order: undefined,
-  currentCategory: undefined,
-  currentProduct: undefined,
-};
-
-export class SendMessage implements SendMessageUseCase {
+export class SendMessage extends CacheDialog implements SendMessageUseCase {
   constructor(
     private readonly clientRepository: ClientRepository,
     private readonly categoryRepository: CategoryRepository,
     private readonly productRepository: ProductRepository,
     private readonly restaurantRepository: RestaurantRepository,
     private readonly productAttributeRepository: ProductAttributeRepository,
-    private readonly cache: CacheManager = new CacheManager(),
+    private readonly orderRepository: OrderRepository,
+    private readonly itemRepository: OrderItemRepository,
     private readonly responses = new MessageResponse(),
     private readonly script = new ConversationScript(),
-  ) {}
-
-  private steps: ConversationStep = inistialAnswers;
-
-  setStep = async (step: ScriptStep, messageDTO: WhatsAppMessageDTO) => {
-    this.steps.step = step;
-    await this.cache.set(messageDTO!.destination, this.steps);
-  };
-
-  setCategory = async (category: string, messageDTO: WhatsAppMessageDTO) => {
-    this.steps.currentCategory = category;
-    await this.cache.set(messageDTO!.destination, this.steps);
-  };
-
-  setProduct = async (
-    product: string,
-    messageDTO: WhatsAppMessageDTO,
-    isAttribute = false,
-  ) => {
-    this.steps.currentProduct = { productId: product, isAttribute };
-    await this.cache.set(messageDTO!.destination, this.steps);
-  };
-
-  resetSteps = () => {
-    this.steps = inistialAnswers;
-  };
-
-  updateOrder = async (
-    key: string,
-    value: string | number | OrderProductEntity[],
-    messageDTO: WhatsAppMessageDTO,
-  ) => {
-    this.steps.order = { ...this.steps.order, ...{ [key]: value } };
-    await this.cache.set(messageDTO!.destination, this.steps);
-  };
-
-  updateClient = async (
-    key: string,
-    response: string | number | Date,
-    messageDTO: WhatsAppMessageDTO,
-  ) => {
-    this.steps.client = { ...this.steps.client, ...{ [key]: response } };
-    await this.cache.set(messageDTO!.destination, this.steps);
-  };
+  ) {
+    super();
+  }
 
   sendMessage = async (
     step: ScriptStep,
@@ -132,7 +83,7 @@ export class SendMessage implements SendMessageUseCase {
 
       const response = this.responses.parse(messageDTO!.response);
 
-      if ((currentStep as ScriptStep) === ScriptStep.WELCOME) {
+      if (currentStep === ScriptStep.WELCOME) {
         if (response === OrderQuestionResponse.REVIEW_THE_MENU) {
           const result = await this.sendMessage(ScriptStep.MENU, messageDTO);
           return result;
@@ -164,7 +115,7 @@ export class SendMessage implements SendMessageUseCase {
           return null;
         }
       }
-      if ((currentStep as ScriptStep) === ScriptStep.MENU) {
+      if (currentStep === ScriptStep.MENU) {
         if (response === OrderQuestionResponse.MAKE_A_ORDER) {
           const client = await this.clientRepository.find(
             messageDTO!.destination,
@@ -192,9 +143,7 @@ export class SendMessage implements SendMessageUseCase {
         }
         return null;
       }
-      if (
-        (currentStep as ScriptStep) === ScriptStep.CLIENT_VERFIFY_NATIONAL_ID
-      ) {
+      if (currentStep === ScriptStep.CLIENT_VERFIFY_NATIONAL_ID) {
         const client = await this.clientRepository.find(
           messageDTO!.destination,
         );
@@ -212,7 +161,7 @@ export class SendMessage implements SendMessageUseCase {
           //reject client
         }
       }
-      if ((currentStep as ScriptStep) === ScriptStep.CHECK_LASTES_ORDERS) {
+      if (currentStep === ScriptStep.CHECK_LASTES_ORDERS) {
         if (response === LastestOrdersQuestionResponse.MAKE_A_NEW_ORDER) {
           const message = await categoriesQuestion(
             messageDTO,
@@ -227,7 +176,7 @@ export class SendMessage implements SendMessageUseCase {
           // check lastest orders
         }
       }
-      if ((currentStep as ScriptStep) === ScriptStep.TYC) {
+      if (currentStep === ScriptStep.TYC) {
         if (response === TyCQuestionResponse.ACCEPT_TYC) {
           const result = await this.sendMessage(
             ScriptStep.CLIENT_NAME,
@@ -242,10 +191,10 @@ export class SendMessage implements SendMessageUseCase {
           return result;
         }
       }
-      if ((currentStep as ScriptStep) === ScriptStep.REJECT_TYC) {
+      if (currentStep === ScriptStep.REJECT_TYC) {
         return null;
       }
-      if ((currentStep as ScriptStep) === ScriptStep.CLIENT_NAME) {
+      if (currentStep === ScriptStep.CLIENT_NAME) {
         await this.updateClient('fullname', response, messageDTO);
         const result = await this.sendMessage(
           ScriptStep.CLIENT_ADDRESS,
@@ -253,7 +202,7 @@ export class SendMessage implements SendMessageUseCase {
         );
         return result;
       }
-      if ((currentStep as ScriptStep) === ScriptStep.CLIENT_ADDRESS) {
+      if (currentStep === ScriptStep.CLIENT_ADDRESS) {
         await this.updateClient('address', response, messageDTO);
         const result = await this.sendMessage(
           ScriptStep.CLIENT_NATIONAL_ID,
@@ -261,7 +210,7 @@ export class SendMessage implements SendMessageUseCase {
         );
         return result;
       }
-      if ((currentStep as ScriptStep) === ScriptStep.CLIENT_NATIONAL_ID) {
+      if (currentStep === ScriptStep.CLIENT_NATIONAL_ID) {
         await this.updateClient('documentId', response, messageDTO);
         const { client } = this.steps;
         let textMessage = 'Por favor confirma tus datos\n\n';
@@ -277,7 +226,7 @@ export class SendMessage implements SendMessageUseCase {
         const result = await services.send(message!);
         return result;
       }
-      if ((currentStep as ScriptStep) === ScriptStep.CONFIRM_CLIENT_DATA) {
+      if (currentStep === ScriptStep.CONFIRM_CLIENT_DATA) {
         if (response === ClientQuestionResponse.ACCEPT_DATA) {
           const [error, registerDTO] = ClientDTO.create({
             ...this.steps.client!,
@@ -298,7 +247,7 @@ export class SendMessage implements SendMessageUseCase {
         }
         return null;
       }
-      if ((currentStep as ScriptStep) === ScriptStep.CATEGORY) {
+      if (currentStep === ScriptStep.CATEGORY) {
         if (response.length !== 1) {
           return null;
         }
@@ -323,7 +272,7 @@ export class SendMessage implements SendMessageUseCase {
         await this.setStep(ScriptStep.PRODUCT, messageDTO);
         return result;
       }
-      if ((currentStep as ScriptStep) === ScriptStep.PRODUCT) {
+      if (currentStep === ScriptStep.PRODUCT) {
         if (response.length !== 1) {
           return null;
         }
@@ -351,7 +300,7 @@ export class SendMessage implements SendMessageUseCase {
           return result;
         }
       }
-      if ((currentStep as ScriptStep) === ScriptStep.ATTRIBUTE) {
+      if (currentStep === ScriptStep.ATTRIBUTE) {
         if (response.length !== 1) {
           return null;
         }
@@ -361,11 +310,11 @@ export class SendMessage implements SendMessageUseCase {
         );
         return result;
       }
-      if ((currentStep as ScriptStep) === ScriptStep.ADD_PRODUCT) {
+      if (currentStep === ScriptStep.ADD_PRODUCT) {
         if (response === AddProductToOrderQuestionResponse.ADD_PRODUCT) {
-          const product = this.steps.currentProduct;
-          if (product!.isAttribute ?? false) {
-            const productId = product!.productId;
+          const currentProduct = this.steps.currentProduct;
+          if (currentProduct!.isAttribute ?? false) {
+            const productId = currentProduct!.productId;
             const attributes =
               await this.productAttributeRepository.findAttributesByProductId(
                 productId,
@@ -373,26 +322,30 @@ export class SendMessage implements SendMessageUseCase {
             const index = response.charCodeAt(0) - 64;
             const attribute = attributes![index - 1];
             this.updateOrder(
-              'products',
+              'items',
               [
-                ...(this.steps.order?.products ?? []),
+                ...(this.steps.order?.items ?? []),
                 {
                   quantity: 1,
-                  productId: attribute!.id!,
-                  isAttribute: true,
+                  productId: currentProduct!.productId!,
+                  attributeId: attribute.id!,
+                  price: attribute.price!,
                 },
               ],
               messageDTO,
             );
           } else {
+            const product = await this.productRepository.findById(
+              currentProduct!.productId!,
+            );
             this.updateOrder(
-              'products',
+              'items',
               [
-                ...(this.steps.order?.products ?? []),
+                ...(this.steps.order?.items ?? []),
                 {
                   quantity: 1,
-                  productId: product!.productId!,
-                  isAttribute: false,
+                  productId: product!.id!,
+                  price: product!.price!,
                 },
               ],
               messageDTO,
@@ -415,11 +368,11 @@ export class SendMessage implements SendMessageUseCase {
           return result;
         }
       }
-      if ((currentStep as ScriptStep) === ScriptStep.FINISH_ORDER) {
+      if (currentStep === ScriptStep.FINISH_ORDER) {
         if (response == FinishOrderQuestionResponse.FINISH) {
           const message = await resumeOrderQuestion(
             messageDTO,
-            this.steps.order!.products!,
+            this.steps.order!.items!,
             this.productAttributeRepository,
             this.productRepository,
           );
@@ -436,7 +389,7 @@ export class SendMessage implements SendMessageUseCase {
           return result;
         }
       }
-      if ((currentStep as ScriptStep) === ScriptStep.CONFIRM_ORDER) {
+      if (currentStep === ScriptStep.CONFIRM_ORDER) {
         if (response === ConfirmOrderResponse.CONFIRM_ORDER) {
           const result = await this.sendMessage(
             ScriptStep.ORDER_TYPE,
@@ -453,7 +406,7 @@ export class SendMessage implements SendMessageUseCase {
           return result;
         }
       }
-      if ((currentStep as ScriptStep) === ScriptStep.ORDER_TYPE) {
+      if (currentStep === ScriptStep.ORDER_TYPE) {
         if (response === OrderType.HOME_DELIVERY) {
           const result = await this.sendMessage(
             ScriptStep.PAYMENT_METHOD,
@@ -477,7 +430,8 @@ export class SendMessage implements SendMessageUseCase {
           return result;
         }
       }
-      if ((currentStep as ScriptStep) === ScriptStep.PAYMENT_METHOD) {
+      if (currentStep === ScriptStep.PAYMENT_METHOD) {
+        this.updateOrder('paymentMethod', response, messageDTO);
         const restaurants = await this.restaurantRepository.all();
         const message = placeQuestion(
           messageDTO.destination,
@@ -487,9 +441,33 @@ export class SendMessage implements SendMessageUseCase {
         await this.setStep(ScriptStep.PLACE, messageDTO);
         return result;
       }
-      if ((currentStep as ScriptStep) === ScriptStep.PLACE) {
+      if (currentStep === ScriptStep.PLACE) {
         this.updateOrder('restaurantId', response, messageDTO);
-        //Create order
+        const client = await this.clientRepository.find(messageDTO.destination);
+        const [error, orderDTO] = OrderDTO.create({
+          type: this.steps.order!.type! as OrderType,
+          clientId: client?.id as string,
+          restaurantId: this.steps.order!.restaurantId! as string,
+          paymentMethod: this.steps.order!.paymentMethod! as PaymentMethod,
+        });
+        if (error) return null;
+
+        const order = await this.orderRepository.create(orderDTO!);
+
+        const items: OrderItemEntity[] = [];
+
+        this.steps.order!.items!.map(async (i: Item) => {
+          const [error, itemDTO] = OrderItemDTO.create({
+            orderId: order!.id!,
+            productId: i.productId,
+            price: i.price,
+            quantity: i.quantity,
+            attributeId: i.attributeId,
+          });
+          if (error) return null;
+          const item = await this.itemRepository.create(itemDTO!);
+          items.push(item!);
+        });
       }
       return null;
     } else {

@@ -16,8 +16,9 @@ export default class OrderModel extends BaseModel implements OrderEntity {
   @Column({
     type: 'enum',
     enum: PaymentMethod,
+    nullable: true,
   })
-  paymentMethod: PaymentMethod;
+  paymentMethod?: PaymentMethod;
 
   @Column({ type: 'varchar', length: 255, nullable: true })
   comment: string;

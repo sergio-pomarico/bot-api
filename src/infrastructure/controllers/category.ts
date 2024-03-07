@@ -17,13 +17,13 @@ export class CategoryController {
   };
   create = async (req: Request, res: Response) => {
     const [error, categoryDTO] = CategoryDTO.create(req.body);
+    if (error) return res.status(400).json({ error });
     this.createCategory
       .run(categoryDTO!)
       .then((response) => {
         return res.status(200).json({ ...response });
       })
       .catch((error) => this.handlerError(error, res));
-    if (error) return res.status(400).json({ error });
   };
   all = async (_: Request, res: Response) => {
     this.getCategories

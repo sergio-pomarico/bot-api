@@ -1,15 +1,12 @@
 import { WhatsAppMessageDTO } from '@domain/dtos';
-import {
-  OrderProductEntity,
-  OrderType,
-  PaymentMethod,
-} from '@domain/entities/order';
+import { OrderType, PaymentMethod } from '@domain/entities';
 import {
   ProductAttributeRepository,
   ProductRepository,
 } from '@domain/repositories';
 import builder from './builder';
 import { RestaurantEntity } from '@domain/entities';
+import { Item } from '../cache';
 
 export enum OrderQuestionResponse {
   REVIEW_THE_MENU = 'REVIEW_THE_MENU',
@@ -143,19 +140,18 @@ export const finishOrderQuestion = (destination: string) =>
 
 export const resumeOrderQuestion = async (
   messageDTO: WhatsAppMessageDTO,
-  products: OrderProductEntity[],
+  products: Item[],
   productAttributeRepository: ProductAttributeRepository,
   productRepository: ProductRepository,
 ) => {
   let message = 'Resumen del pedido\n\n';
   let total = 0;
   for (const data of products) {
-    if (data.isAttribute) {
+    if (data.attributeId) {
       const attribute = await productAttributeRepository.findById(
-        data.productId,
+        data.attributeId,
       );
-      const product = await productRepository.findById(attribute!.product!.id!);
-      message += `*${product?.name}*  ${attribute?.title} x ${attribute?.price}\n`;
+      message += `*${attribute?.product?.name}*  ${attribute?.title} x ${attribute?.price}\n`;
       total += attribute!.price!;
     } else {
       const product = await productRepository.findById(data.productId);
