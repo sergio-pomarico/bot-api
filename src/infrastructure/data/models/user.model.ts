@@ -18,7 +18,7 @@ export default class UserModel extends BaseModel implements UserEntity {
 
   @Column({
     name: 'last_login',
-    type: 'timestamp',
+    type: 'timestamptz',
     nullable: true,
   })
   lastLogin: Date;

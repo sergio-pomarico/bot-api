@@ -10,6 +10,8 @@ export default interface OrderEntity {
   comment?: string;
   items?: OrderItemEntity[];
   paymentMethod?: PaymentMethod;
+  createdAt?: Date;
+  updatedAt?: Date;
 }
 
 export enum OrderType {

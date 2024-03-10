@@ -15,7 +15,7 @@ export default class OrderItemModel extends BaseModel {
   @JoinColumn({ name: 'product_id' })
   product: ProductModel;
 
-  @Column({ nullable: true })
+  @Column({ nullable: true, name: 'attribute_id' })
   attributeId?: string;
 
   @ManyToOne(() => OrderModel, (order) => order.items)

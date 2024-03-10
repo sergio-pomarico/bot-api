@@ -7,4 +7,6 @@ export interface OrderItemEntity {
   quantity: number;
   price: number;
   order?: OrderEntity;
+  createdAt?: Date;
+  updatedAt?: Date;
 }
