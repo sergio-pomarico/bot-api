@@ -57,8 +57,9 @@ export class CacheDialog {
     await this.cache.set(messageDTO!.destination, this.steps);
   };
 
-  resetSteps = () => {
+  resetSteps = async (messageDTO: WhatsAppMessageDTO) => {
     this.steps = inistialAnswers;
+    await this.cache.set(messageDTO!.destination, this.steps);
   };
 
   updateOrder = async (

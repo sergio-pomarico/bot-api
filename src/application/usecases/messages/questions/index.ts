@@ -14,6 +14,7 @@ import {
   selectPaymentMethodQuestion,
   placeQuestion,
   finishProcessQuestion,
+  latestOrderResumeQuestion,
 } from './order';
 import { TyCQuestionResponse, tycQuestion, rejectTYCQuestion } from './tyc';
 import {
@@ -58,4 +59,5 @@ export {
   selectPaymentMethodQuestion,
   placeQuestion,
   finishProcessQuestion,
+  latestOrderResumeQuestion,
 };

@@ -10,8 +10,14 @@ export class ClientRepositoryImpl implements ClientRepository {
     try {
       const databaseRepository =
         postgreSQLDatabase.datasource.getRepository(ClientModel);
-      const clientFound = await databaseRepository.findOneBy({
-        phone: parseInt(phone),
+      const clientFound = await databaseRepository.findOne({
+        where: { phone: parseInt(phone) },
+        relations: {
+          orders: {
+            items: { product: true },
+            restaurant: true,
+          },
+        },
       });
       return clientFound;
     } catch (error) {

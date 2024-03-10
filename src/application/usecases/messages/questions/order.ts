@@ -1,5 +1,5 @@
 import { WhatsAppMessageDTO } from '@domain/dtos';
-import { OrderType, PaymentMethod } from '@domain/entities';
+import { OrderEntity, OrderType, PaymentMethod } from '@domain/entities';
 import {
   ProductAttributeRepository,
   ProductRepository,
@@ -137,6 +137,43 @@ export const finishOrderQuestion = (destination: string) =>
       },
     ],
   );
+
+export const latestOrderResumeQuestion = async (
+  order: OrderEntity,
+  productAttributeRepository: ProductAttributeRepository,
+  messageDTO: WhatsAppMessageDTO,
+) => {
+  let message = `Tu último pedido en el punto de venta ${order.restaurant?.name} (${order.restaurant?.address}) fue:\n\n`;
+  let total = 0;
+  for (const item of order.items!) {
+    if (item.attributeId) {
+      const attribute = await productAttributeRepository.findById(
+        item.attributeId,
+      );
+      message += `*${item.product?.name}* ${attribute?.title} x  ${item.price}\n`;
+    } else {
+      message += `*${item.product?.name}* x ${item.price}\n`;
+    }
+    total += item.price!;
+  }
+  message += `Total: ${total}`;
+  return builder.buildReplyButtonsMessage(messageDTO.destination, message, [
+    {
+      type: 'reply',
+      reply: {
+        id: ConfirmOrderResponse.CONFIRM_ORDER,
+        title: 'Confirmar pedido ✅',
+      },
+    },
+    {
+      type: 'reply',
+      reply: {
+        id: ConfirmOrderResponse.ADD_MORE_PRODUCTS,
+        title: 'Nuevo pedido 🗣️',
+      },
+    },
+  ]);
+};
 
 export const resumeOrderQuestion = async (
   messageDTO: WhatsAppMessageDTO,

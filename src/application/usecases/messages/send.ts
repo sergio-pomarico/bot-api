@@ -39,6 +39,7 @@ import {
   ConfirmOrderResponse,
   placeQuestion,
   finishProcessQuestion,
+  latestOrderResumeQuestion,
 } from './questions';
 import { CacheDialog, ConversationStep, Item } from './cache';
 
@@ -109,6 +110,7 @@ export class SendMessage extends CacheDialog implements SendMessageUseCase {
                 this.categoryRepository,
               );
               const result = await services.send(message!);
+              await this.setStep(ScriptStep.CATEGORY, messageDTO);
               return result;
             }
           }
@@ -132,6 +134,7 @@ export class SendMessage extends CacheDialog implements SendMessageUseCase {
               );
               return result;
             } else {
+              //TODO: check last orders
               const message = checkLastestOrdersQuestion(
                 messageDTO!.destination,
                 `Hola ${client?.fullname} nos encanta que estes de vuelta\n\n¿Deseas ordenar lo mismo que la última vez?`,
@@ -150,7 +153,6 @@ export class SendMessage extends CacheDialog implements SendMessageUseCase {
         );
         const { documentId } = client!;
         if (response === documentId?.toString().slice(-4)) {
-          //greetings client
           const message = checkLastestOrdersQuestion(
             messageDTO!.destination,
             `Hola ${client?.fullname} nos encanta que estes de vuelta\n\n¿Deseas ordenar lo mismo que la última vez?`,
@@ -159,7 +161,7 @@ export class SendMessage extends CacheDialog implements SendMessageUseCase {
           const result = await services.send(message!);
           return result;
         } else {
-          //reject client
+          //TODO: reject client
         }
       }
       if (currentStep === ScriptStep.CHECK_LASTES_ORDERS) {
@@ -174,7 +176,24 @@ export class SendMessage extends CacheDialog implements SendMessageUseCase {
         } else if (
           response === LastestOrdersQuestionResponse.CHECK_LASTES_ORDERS
         ) {
-          // check lastest orders
+          const client = await this.clientRepository.find(
+            messageDTO!.destination,
+          );
+          if (client!.orders !== null && client!.orders!.length > 0) {
+            const { orders } = client!;
+            const order = orders!.reduce((a, b) =>
+              new Date(a!.createdAt!) > new Date(b!.createdAt!) ? a : b,
+            );
+            const message = await latestOrderResumeQuestion(
+              order!,
+              this.productAttributeRepository,
+              messageDTO,
+            );
+            const result = await services.send(message!);
+            return result;
+          } else {
+            //send new order
+          }
         }
       }
       if (currentStep === ScriptStep.TYC) {
@@ -223,7 +242,7 @@ export class SendMessage extends CacheDialog implements SendMessageUseCase {
           messageDTO!.destination,
           textMessage,
         );
-        await await (ScriptStep.CONFIRM_CLIENT_DATA, messageDTO);
+        await this.setStep(ScriptStep.CONFIRM_CLIENT_DATA, messageDTO);
         const result = await services.send(message!);
         return result;
       }
@@ -239,6 +258,13 @@ export class SendMessage extends CacheDialog implements SendMessageUseCase {
             return null;
           }
           this.clientRepository.create(registerDTO!);
+          const message = await categoriesQuestion(
+            messageDTO,
+            this.categoryRepository,
+          );
+          const result = await services.send(message!);
+          await this.setStep(ScriptStep.CATEGORY, messageDTO);
+          return result;
         } else if (response === ClientQuestionResponse.REJECT_DATA) {
           const result = await this.sendMessage(
             ScriptStep.CLIENT_NAME,
@@ -472,13 +498,15 @@ export class SendMessage extends CacheDialog implements SendMessageUseCase {
 
         order!.items = items;
         this.orderRepository.update(order!.id!, order!);
+        //TODO: update client.updateAt
         const message = finishProcessQuestion(messageDTO.destination);
         const result = await services.send(message!);
+        await this.resetSteps(messageDTO);
         return result;
       }
       return null;
     } else {
-      this.resetSteps();
+      await this.resetSteps(messageDTO);
       const result = await this.sendMessage(ScriptStep.WELCOME, messageDTO);
       return result;
     }
