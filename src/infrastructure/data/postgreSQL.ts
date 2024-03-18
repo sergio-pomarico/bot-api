@@ -44,8 +44,10 @@ export class PostgreSQLDatabase {
       logging: false,
       ssl: options.ssl,
       entities: [__dirname + '/models/*.model{.ts,.js}'],
+      migrations: [__dirname + '/migrations/*{.ts,.js}'],
     };
   }
 }
 
 export const postgreSQLDatabase = new PostgreSQLDatabase(env.database);
+export const datasource: DataSource = postgreSQLDatabase.datasource;
