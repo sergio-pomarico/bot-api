@@ -15,6 +15,7 @@ import {
   placeQuestion,
   finishProcessQuestion,
   latestOrderResumeQuestion,
+  RepeatLastestOrdersQuestionResponse,
 } from './order';
 import { TyCQuestionResponse, tycQuestion, rejectTYCQuestion } from './tyc';
 import {
@@ -60,4 +61,5 @@ export {
   placeQuestion,
   finishProcessQuestion,
   latestOrderResumeQuestion,
+  RepeatLastestOrdersQuestionResponse,
 };

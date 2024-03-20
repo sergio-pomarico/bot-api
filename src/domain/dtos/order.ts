@@ -5,7 +5,7 @@ const OrderDTOValidator = z.object({
   clientId: z.string().uuid(),
   restaurantId: z.string().uuid(),
   type: z.nativeEnum(OrderType),
-  paymentMethod: z.nativeEnum(PaymentMethod).optional(),
+  paymentMethod: z.nativeEnum(PaymentMethod).optional().nullable(),
 });
 
 export type OrderValidator = z.infer<typeof OrderDTOValidator>;
@@ -15,7 +15,7 @@ export default class OrderDTO {
     public clientId: string,
     public restaurantId: string,
     public type: OrderType,
-    public paymentMethod: PaymentMethod,
+    public paymentMethod?: PaymentMethod,
   ) {}
   static create(data: { [key in keyof OrderValidator]: unknown }): [
     Error?,

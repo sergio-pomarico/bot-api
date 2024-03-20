@@ -33,6 +33,11 @@ export enum ConfirmOrderResponse {
   ADD_MORE_PRODUCTS = 'ADD_MORE_PRODUCTS',
 }
 
+export enum RepeatLastestOrdersQuestionResponse {
+  CONFIRM_ORDER = 'CONFIRM_ORDER',
+  MAKE_A_NEW_ORDER = 'MAKE_A_NEW_ORDER',
+}
+
 export const makeOrderQuestion = (destination: string, name?: string) =>
   builder.buildReplyButtonsMessage(
     destination,
@@ -161,14 +166,14 @@ export const latestOrderResumeQuestion = async (
     {
       type: 'reply',
       reply: {
-        id: ConfirmOrderResponse.CONFIRM_ORDER,
+        id: RepeatLastestOrdersQuestionResponse.CONFIRM_ORDER,
         title: 'Confirmar pedido ✅',
       },
     },
     {
       type: 'reply',
       reply: {
-        id: ConfirmOrderResponse.ADD_MORE_PRODUCTS,
+        id: RepeatLastestOrdersQuestionResponse.MAKE_A_NEW_ORDER,
         title: 'Nuevo pedido 🗣️',
       },
     },

@@ -40,6 +40,7 @@ import {
   placeQuestion,
   finishProcessQuestion,
   latestOrderResumeQuestion,
+  RepeatLastestOrdersQuestionResponse,
 } from './questions';
 import { CacheDialog, ConversationStep, Item } from './cache';
 
@@ -190,10 +191,54 @@ export class SendMessage extends CacheDialog implements SendMessageUseCase {
               messageDTO,
             );
             const result = await services.send(message!);
+            await this.setStep(ScriptStep.REPEAT_LAST_ORDERS, messageDTO);
             return result;
           } else {
-            //send new order
+            const message = await categoriesQuestion(
+              messageDTO,
+              this.categoryRepository,
+            );
+            await this.setStep(ScriptStep.CATEGORY, messageDTO);
+            const result = await services.send(message!);
+            return result;
           }
+        }
+      }
+      if (currentStep === ScriptStep.REPEAT_LAST_ORDERS) {
+        if (response === RepeatLastestOrdersQuestionResponse.MAKE_A_NEW_ORDER) {
+          const message = await categoriesQuestion(
+            messageDTO,
+            this.categoryRepository,
+          );
+          await this.setStep(ScriptStep.CATEGORY, messageDTO);
+          const result = await services.send(message!);
+          return result;
+        } else if (
+          response === RepeatLastestOrdersQuestionResponse.CONFIRM_ORDER
+        ) {
+          const client = await this.clientRepository.find(
+            messageDTO!.destination,
+          );
+          const { orders } = client!;
+          const oldOrder = orders!.reduce((a, b) =>
+            new Date(a!.createdAt!) > new Date(b!.createdAt!) ? a : b,
+          );
+          const [error, orderDTO] = OrderDTO.create({
+            type: oldOrder.type as OrderType,
+            clientId: client?.id as string,
+            restaurantId: oldOrder.restaurant?.id as string,
+            paymentMethod: oldOrder!.paymentMethod as PaymentMethod,
+          });
+          if (error) return null;
+          const newOrder = await this.orderRepository.create(orderDTO!);
+          newOrder!.items = oldOrder.items;
+          this.orderRepository.update(newOrder!.id!, newOrder!);
+          const message = finishProcessQuestion(messageDTO.destination);
+          const result = await services.send(message!);
+          await this.resetSteps(messageDTO);
+          return result;
+        } else {
+          return null;
         }
       }
       if (currentStep === ScriptStep.TYC) {
