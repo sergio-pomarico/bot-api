@@ -1,7 +1,7 @@
 import { ProductAttributeEntity } from '@domain/entities';
 import { ProductAttributeRepository } from '@domain/repositories';
 import { ProductAttributeModel } from '@infrastructure/data/models';
-import { postgreSQLDatabase } from '@infrastructure/data/postgreSQL';
+import { datasource } from '@infrastructure/data/postgreSQL';
 
 export class ProductAttributeRepositoryImpl
   implements ProductAttributeRepository
@@ -10,7 +10,7 @@ export class ProductAttributeRepositoryImpl
     id: string,
   ): Promise<ProductAttributeEntity[] | null> => {
     try {
-      const databaseRepository = postgreSQLDatabase.datasource.getRepository(
+      const databaseRepository = datasource.getRepository(
         ProductAttributeModel,
       );
       const productAttributes = await databaseRepository.find({
@@ -26,7 +26,7 @@ export class ProductAttributeRepositoryImpl
   };
   findById = async (id: string): Promise<ProductAttributeEntity | null> => {
     try {
-      const databaseRepository = postgreSQLDatabase.datasource.getRepository(
+      const databaseRepository = datasource.getRepository(
         ProductAttributeModel,
       );
       const productAttribute = await databaseRepository.findOne({

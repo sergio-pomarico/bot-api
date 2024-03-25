@@ -3,13 +3,12 @@ import { ClientEntity } from '@domain/entities';
 import { CustomHTTPError } from '@domain/errors/custom';
 import { ClientRepository } from '@domain/repositories';
 import { ClientModel } from '@infrastructure/data/models';
-import { postgreSQLDatabase } from '@infrastructure/data/postgreSQL';
+import { datasource } from '@infrastructure/data/postgreSQL';
 
 export class ClientRepositoryImpl implements ClientRepository {
   find = async (phone: string): Promise<ClientEntity | null> => {
     try {
-      const databaseRepository =
-        postgreSQLDatabase.datasource.getRepository(ClientModel);
+      const databaseRepository = datasource.getRepository(ClientModel);
       const clientFound = await databaseRepository.findOne({
         where: { phone: parseInt(phone) },
         relations: {
@@ -29,8 +28,7 @@ export class ClientRepositoryImpl implements ClientRepository {
   };
   create = async (clientDTO: ClientDTO): Promise<ClientEntity | null> => {
     try {
-      const databaseRepository =
-        postgreSQLDatabase.datasource.getRepository(ClientModel);
+      const databaseRepository = datasource.getRepository(ClientModel);
       const clientFound = await databaseRepository.findOneBy({
         phone: parseInt(clientDTO.phone),
       });

@@ -71,4 +71,26 @@ export class OrderRepositoryImpl implements OrderRepository {
       return null;
     }
   };
+  all = async (
+    take: number,
+    skip: number,
+    restaurantId: string,
+  ): Promise<OrderEntity[]> => {
+    try {
+      const orderRepository =
+        postgreSQLDatabase.datasource.getRepository(OrderModel);
+      const orders = await orderRepository.find({
+        where: { restaurant: { id: restaurantId } },
+        skip,
+        take,
+        relations: ['client', 'restaurant'],
+      });
+      return orders;
+    } catch (error) {
+      if (error instanceof Error) {
+        throw error;
+      }
+      return [];
+    }
+  };
 }

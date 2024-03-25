@@ -5,19 +5,16 @@ import { OrderItemRepository } from '@domain/repositories';
 import { ProductModel } from '@infrastructure/data/models';
 import OrderItemModel from '@infrastructure/data/models/order.item.model';
 import OrderModel from '@infrastructure/data/models/order.model';
-import { postgreSQLDatabase } from '@infrastructure/data/postgreSQL';
+import { datasource } from '@infrastructure/data/postgreSQL';
 
 export class OrderItemRepositoryImpl implements OrderItemRepository {
   create = async (
     orderItemDTO: OrderItemDTO,
   ): Promise<OrderItemEntity | null> => {
     try {
-      const itemRepository =
-        postgreSQLDatabase.datasource.getRepository(OrderItemModel);
-      const orderRepository =
-        postgreSQLDatabase.datasource.getRepository(OrderModel);
-      const productRepository =
-        postgreSQLDatabase.datasource.getRepository(ProductModel);
+      const itemRepository = datasource.getRepository(OrderItemModel);
+      const orderRepository = datasource.getRepository(OrderModel);
+      const productRepository = datasource.getRepository(ProductModel);
 
       const order = await orderRepository.findOne({
         where: { id: orderItemDTO.orderId },

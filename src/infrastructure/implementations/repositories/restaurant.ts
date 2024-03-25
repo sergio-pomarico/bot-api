@@ -2,15 +2,14 @@ import RestaurantDTO from '@domain/dtos/restaurant';
 import { RestaurantEntity } from '@domain/entities';
 import { RestaurantRepository } from '@domain/repositories/restaurant';
 import { RestaurantModel } from '@infrastructure/data/models';
-import { postgreSQLDatabase } from '@infrastructure/data/postgreSQL';
+import { datasource } from '@infrastructure/data/postgreSQL';
 
 export class RestaurantRepositoryImpl implements RestaurantRepository {
   create = async (
     restaurantDTO: RestaurantDTO,
   ): Promise<RestaurantEntity | null> => {
     try {
-      const restaurantRepository =
-        postgreSQLDatabase.datasource.getRepository(RestaurantModel);
+      const restaurantRepository = datasource.getRepository(RestaurantModel);
       const newRestaurant = new RestaurantModel();
       newRestaurant.name = restaurantDTO.name;
       newRestaurant.address = restaurantDTO.address;
@@ -26,8 +25,7 @@ export class RestaurantRepositoryImpl implements RestaurantRepository {
   };
   findById = async (id: string): Promise<RestaurantEntity | null> => {
     try {
-      const restaurantRepository =
-        postgreSQLDatabase.datasource.getRepository(RestaurantModel);
+      const restaurantRepository = datasource.getRepository(RestaurantModel);
       const restaurant = await restaurantRepository.findOne({
         where: { id },
       });
@@ -41,8 +39,7 @@ export class RestaurantRepositoryImpl implements RestaurantRepository {
   };
   all = async (): Promise<RestaurantEntity[] | null> => {
     try {
-      const restaurantRepository =
-        postgreSQLDatabase.datasource.getRepository(RestaurantModel);
+      const restaurantRepository = datasource.getRepository(RestaurantModel);
       const restaurants = await restaurantRepository.find();
       return restaurants;
     } catch (error) {

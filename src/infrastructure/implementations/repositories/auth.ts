@@ -3,7 +3,7 @@ import { UserEntity } from '@domain/entities';
 import { CustomHTTPError } from '@domain/errors/custom';
 import { AuthRepository } from '@domain/repositories/auth';
 import { UserModel } from '@infrastructure/data/models';
-import { postgreSQLDatabase } from '@infrastructure/data/postgreSQL';
+import { datasource } from '@infrastructure/data/postgreSQL';
 import { EncryptAdapter } from '@shared/utils';
 
 type hashFunction = (password: string) => string;
@@ -16,8 +16,7 @@ export class AuthRepositoryImpl implements AuthRepository {
   ) {}
   login = async (loginDTO: LoginUserDTO): Promise<UserEntity | null> => {
     try {
-      const databaseRepository =
-        postgreSQLDatabase.datasource.getRepository(UserModel);
+      const databaseRepository = datasource.getRepository(UserModel);
       const userFound = await databaseRepository.findOneBy({
         email: loginDTO.email,
       });
@@ -47,8 +46,7 @@ export class AuthRepositoryImpl implements AuthRepository {
     registerDTO: RegisterUserDTO,
   ): Promise<UserEntity | null> => {
     try {
-      const databaseRepository =
-        postgreSQLDatabase.datasource.getRepository(UserModel);
+      const databaseRepository = datasource.getRepository(UserModel);
 
       const userFound = await databaseRepository.findOneBy({
         email: registerDTO.email,

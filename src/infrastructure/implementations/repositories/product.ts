@@ -3,13 +3,12 @@ import { ProductEntity } from '@domain/entities';
 import { CustomHTTPError } from '@domain/errors/custom';
 import { ProductRepository } from '@domain/repositories';
 import { CategoryModel, ProductModel } from '@infrastructure/data/models';
-import { postgreSQLDatabase } from '@infrastructure/data/postgreSQL';
+import { datasource } from '@infrastructure/data/postgreSQL';
 
 export class ProductRepositoryImpl implements ProductRepository {
   findByCategoryId = async (id: string): Promise<ProductEntity[] | null> => {
     try {
-      const productRepository =
-        postgreSQLDatabase.datasource.getRepository(ProductModel);
+      const productRepository = datasource.getRepository(ProductModel);
       const products = await productRepository.find({
         where: { category: { id } },
         relations: ['attributes'],
@@ -24,8 +23,7 @@ export class ProductRepositoryImpl implements ProductRepository {
   };
   findById = async (id: string): Promise<ProductEntity | null> => {
     try {
-      const productRepository =
-        postgreSQLDatabase.datasource.getRepository(ProductModel);
+      const productRepository = datasource.getRepository(ProductModel);
       const products = await productRepository.findOne({
         where: { id },
         relations: ['attributes'],
@@ -40,10 +38,8 @@ export class ProductRepositoryImpl implements ProductRepository {
   };
   create = async (productDTO: ProductDTO): Promise<ProductEntity | null> => {
     try {
-      const productRepository =
-        postgreSQLDatabase.datasource.getRepository(ProductModel);
-      const categoryRepository =
-        postgreSQLDatabase.datasource.getRepository(CategoryModel);
+      const productRepository = datasource.getRepository(ProductModel);
+      const categoryRepository = datasource.getRepository(CategoryModel);
 
       const category = await categoryRepository.findOne({
         where: { id: productDTO.categoryId },
