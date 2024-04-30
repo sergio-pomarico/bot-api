@@ -18,8 +18,9 @@ export default class ProductAttributeModel
   @Column({
     type: 'enum',
     enum: Size,
+    nullable: true,
   })
-  size: Size;
+  size?: Size;
 
   @ManyToOne(() => ProductModel, (product) => product.attributes)
   @JoinColumn({ name: 'product_id' })
